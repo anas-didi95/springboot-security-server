@@ -18,3 +18,4 @@ services:
       - 5000:5000
     volumes:
       - ./:/workspace
+      - .m2/:/home/vscode/.m2
