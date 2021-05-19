@@ -9,6 +9,7 @@ public class GreetingWebClient {
 
   private WebClient webClient = WebClient.create("http://localhost:5000");
 
+  @Deprecated
   private Mono<ClientResponse> result =
       webClient.get().uri("/hello").accept(MediaType.TEXT_PLAIN).exchange();
 
