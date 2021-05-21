@@ -17,7 +17,7 @@ public class UserController {
 
   private static final Logger logger = LogManager.getLogger(UserController.class);
 
-  @RequestMapping(method = {RequestMethod.POST}, value = "/",
+  @RequestMapping(method = {RequestMethod.POST}, value = "",
       consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
   public ResponseEntity<Mono<Map<String, String>>> create() {
     final String TAG = "create";
