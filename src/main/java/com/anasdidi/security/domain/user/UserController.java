@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +18,12 @@ import reactor.core.publisher.Mono;
 class UserController {
 
   private static final Logger logger = LogManager.getLogger(UserController.class);
+  private final UserRepository userRepository;
+
+  @Autowired
+  UserController(UserRepository userRepository) {
+    this.userRepository = userRepository;
+  }
 
   @RequestMapping(method = RequestMethod.POST, value = "",
       consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -30,6 +37,14 @@ class UserController {
 
     if (logger.isDebugEnabled()) {
       logger.debug("[{}] {}", TAG, userVO);
+    }
+
+    User user = new User();
+    user.setUsername(userVO.username);
+    user = userRepository.save(user);
+
+    if (logger.isDebugEnabled()) {
+      logger.debug("[{}] user.id={}", TAG, user.getId());
     }
 
     return ResponseEntity.ok().body(Mono.just(responseBody));

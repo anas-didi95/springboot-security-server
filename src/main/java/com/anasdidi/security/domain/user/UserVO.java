@@ -4,9 +4,9 @@ import java.util.Map;
 
 class UserVO {
 
-  private final String username;
-  private final String password;
-  private final String email;
+  final String username;
+  final String password;
+  final String email;
 
   private UserVO(String username, String password, String email) {
     this.username = username;
