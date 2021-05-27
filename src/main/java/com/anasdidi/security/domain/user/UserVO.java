@@ -2,8 +2,6 @@ package com.anasdidi.security.domain.user;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -12,18 +10,23 @@ import javax.persistence.Table;
 class UserVO {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "id", unique = true, nullable = false)
-  private Integer id;
+  private String id;
 
   @Column(name = "username", unique = true, nullable = false)
   private String username;
 
-  public Integer getId() {
+  static UserVO fromDTO(UserDTO dto) {
+    UserVO vo = new UserVO();
+    vo.setUsername(dto.username);
+    return vo;
+  }
+
+  public String getId() {
     return id;
   }
 
-  public void setId(Integer id) {
+  public void setId(String id) {
     this.id = id;
   }
 
@@ -34,4 +37,6 @@ class UserVO {
   public void setUsername(String username) {
     this.username = username;
   }
+
+
 }

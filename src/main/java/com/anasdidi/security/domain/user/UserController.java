@@ -21,11 +21,11 @@ import reactor.core.publisher.Mono;
 class UserController {
 
   private static final Logger logger = LogManager.getLogger(UserController.class);
-  private final UserRepository userRepository;
+  private final UserService userService;
 
   @Autowired
-  UserController(UserRepository userRepository) {
-    this.userRepository = userRepository;
+  UserController(UserService userService) {
+    this.userService = userService;
   }
 
   @RequestMapping(method = RequestMethod.POST, value = "",
@@ -35,10 +35,10 @@ class UserController {
     UserDTO userDTO = UserDTO.fromMap(requestBody);
 
     Mono<Map<String, Object>> responseBody = Mono.just(userDTO)//
-        .map(dto -> {
+        .flatMap(dto -> userService.create(dto))//
+        .map(id -> {
           Map<String, Object> map = new HashMap<>();
-          map.put("id", UUID.randomUUID().toString());
-          map.put("username", dto.username);
+          map.put("id", id);
           return map;
         });
 
