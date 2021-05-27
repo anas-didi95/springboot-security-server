@@ -1,10 +1,13 @@
 package com.anasdidi.security.domain.user;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,26 +30,18 @@ class UserController {
 
   @RequestMapping(method = RequestMethod.POST, value = "",
       consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
-  ResponseEntity<Mono<Map<String, String>>> create(@RequestBody Map<String, Object> requestBody) {
+  ResponseEntity<Mono<Map<String, Object>>> create(@RequestBody Map<String, Object> requestBody) {
     final String TAG = "create";
-    UserVO userVO = UserVO.fromMap(requestBody);
+    UserDTO userDTO = UserDTO.fromMap(requestBody);
 
-    Map<String, String> responseBody = new HashMap<>();
-    responseBody.put("path", "/users");
-    responseBody.put("statusCode", "201");
+    Mono<Map<String, Object>> responseBody = Mono.just(userDTO)//
+        .map(dto -> {
+          Map<String, Object> map = new HashMap<>();
+          map.put("id", UUID.randomUUID().toString());
+          map.put("username", dto.username);
+          return map;
+        });
 
-    if (logger.isDebugEnabled()) {
-      logger.debug("[{}] {}", TAG, userVO);
-    }
-
-    User user = new User();
-    user.setUsername(userVO.username);
-    user = userRepository.save(user);
-
-    if (logger.isDebugEnabled()) {
-      logger.debug("[{}] user.id={}", TAG, user.getId());
-    }
-
-    return ResponseEntity.ok().body(Mono.just(responseBody));
+    return ResponseEntity.created(URI.create("/security/user/id")).body(responseBody);
   }
 }

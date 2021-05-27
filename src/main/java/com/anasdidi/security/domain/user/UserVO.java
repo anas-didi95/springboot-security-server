@@ -1,32 +1,37 @@
 package com.anasdidi.security.domain.user;
 
-import java.util.Map;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
+@Entity
+@Table(name = "users")
 class UserVO {
 
-  final String username;
-  final String password;
-  final String email;
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  @Column(name = "id", unique = true, nullable = false)
+  private Integer id;
 
-  private UserVO(String username, String password, String email) {
+  @Column(name = "username", unique = true, nullable = false)
+  private String username;
+
+  public Integer getId() {
+    return id;
+  }
+
+  public void setId(Integer id) {
+    this.id = id;
+  }
+
+  public String getUsername() {
+    return username;
+  }
+
+  public void setUsername(String username) {
     this.username = username;
-    this.password = password;
-    this.email = email;
-  }
-
-  static UserVO fromMap(Map<String, Object> map) {
-    String username = (String) map.get("username");
-    String password = (String) map.get("password");
-    String email = (String) map.get("email");
-
-    return new UserVO(username, password, email);
-  }
-
-  @Override
-  public String toString() {
-    return "UserVO :" //
-        + ": username=" + username//
-        + ", password=" + password//
-        + ", email=" + email;
   }
 }
