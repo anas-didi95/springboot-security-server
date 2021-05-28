@@ -6,7 +6,8 @@ Accept: application/json
 Content-Type: application/json
 
 {
-  "username": "username",
+  "username": "username1",
   "password": "password",
+  "fullName": "fullName",
   "email": "email@domain.com"
 }

@@ -1,5 +1,6 @@
 package com.anasdidi.security.domain.user;
 
+import java.util.Date;
 import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -11,9 +12,12 @@ import reactor.core.publisher.Mono;
 class UserServiceBean implements UserService {
 
   private static final Logger logger = LogManager.getLogger(UserServiceBean.class);
+  private final UserRepository userRepository;
 
   @Autowired
-  UserServiceBean() {}
+  UserServiceBean(UserRepository userRepository) {
+    this.userRepository = userRepository;
+  }
 
   @Override
   public Mono<String> create(UserDTO dto) {
@@ -23,6 +27,16 @@ class UserServiceBean implements UserService {
       logger.debug("[{}] {}", TAG, dto);
     }
 
-    return Mono.just(UserVO.fromDTO(dto)).map(vo -> UUID.randomUUID().toString());
+    return Mono.just(dto.toVO())//
+        .map(vo -> {
+          String id = UUID.randomUUID().toString().replaceAll("-", "").toUpperCase();
+          vo.setId(id);
+          vo.setLastModifiedDate(new Date());
+          vo.setVersion(0);
+
+          return vo;
+        })//
+        .map(vo -> userRepository.save(vo))//
+        .map(vo -> vo.getId());
   }
 }
