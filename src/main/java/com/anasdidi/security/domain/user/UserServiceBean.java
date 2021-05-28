@@ -11,21 +11,18 @@ import reactor.core.publisher.Mono;
 class UserServiceBean implements UserService {
 
   private static final Logger logger = LogManager.getLogger(UserServiceBean.class);
-  private final UserRepository userRepository;
 
   @Autowired
-  public UserServiceBean(UserRepository userRepository) {
-    this.userRepository = userRepository;
-  }
+  UserServiceBean() {}
 
   @Override
-  public Mono<String> create(UserDTO user) {
+  public Mono<String> create(UserDTO dto) {
     final String TAG = "create";
 
     if (logger.isDebugEnabled()) {
-      logger.debug("[{}] user={}", TAG, user);
+      logger.debug("[{}] {}", TAG, dto);
     }
 
-    return Mono.just(user).map(dto -> UserVO.fromDTO(dto)).map(vo -> UUID.randomUUID().toString());
+    return Mono.just(UserVO.fromDTO(dto)).map(vo -> UUID.randomUUID().toString());
   }
 }

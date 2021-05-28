@@ -4,5 +4,5 @@ import reactor.core.publisher.Mono;
 
 interface UserService {
 
-  Mono<String> create(UserDTO user);
+  Mono<String> create(UserDTO dto);
 }
