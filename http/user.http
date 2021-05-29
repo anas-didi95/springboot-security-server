@@ -4,3 +4,10 @@
 POST {{baseUrl}}
 Accept: application/json
 Content-Type: application/json
+
+{
+  "username": "username1",
+  "password": "password",
+  "fullName": "fullName",
+  "email": "email@domain.com"
+}
