@@ -9,10 +9,10 @@ import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 @Configuration
-class UserRouter {
+class UserConfig {
 
   @Bean
-  RouterFunction<ServerResponse> router(UserHandler userHandler) {
+  RouterFunction<ServerResponse> userRouter(UserHandler userHandler) {
     return RouterFunctions//
         .route(
             RequestPredicates.POST("/user")
