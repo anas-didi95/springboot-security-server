@@ -23,7 +23,7 @@
     </rollingPolicy>
   </appender>
 
-  <logger name="com.anasdidi.security" level="debug" additivity="false">
+  <logger name="com.anasdidi.security" level="${LOG_LEVEL:-error}" additivity="false">
     <appender-ref ref="console" />
     <appender-ref ref="rollingFile" />
   </logger>
