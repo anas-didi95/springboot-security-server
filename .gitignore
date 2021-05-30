@@ -1,5 +1,6 @@
 .m2/
 log/
+.env
 
 HELP.md
 target/
