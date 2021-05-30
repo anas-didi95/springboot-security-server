@@ -7,6 +7,7 @@ This application was generated using https://start.spring.io/
 ## Table of contents
 * [General info](#general-info)
 * [Technologies](#technologies)
+* [Environment Variables](#environment-variables)
 * [Setup](#setup)
 * [Features](#features)
 * [References](#references)
@@ -20,7 +21,22 @@ Back-end service which provides security-related resources such as user and JSON
 ---
 
 ## Technologies
-* Spring Boot - Version 2.4.5
+* Spring Boot
+* PostgreSQL JDBC Driver
+
+---
+
+## Environment Variables
+Following table is a **mandatory** environment variables used in this project.
+
+| Variable Name | Datatype | Description |
+| --- | --- | --- |
+| APP_HOST | String | Server host |
+| APP_PORT | Number | Server port |
+| DB_URL | String | Database URL |
+| DB_USERNAME | String | Database username |
+| DB_PASSWORD | String | Database password |
+| LOG_LEVEL | String | Log level |
 
 ---
 
