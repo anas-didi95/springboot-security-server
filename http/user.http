@@ -1,4 +1,4 @@
-@baseUrl = http://0.0.0.0:5000/security/user
+@baseUrl = http://{{$processEnv APP_HOST}}:{{$processEnv APP_PORT}}/security/user
 
 // @name create
 POST {{baseUrl}}

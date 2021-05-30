@@ -28,8 +28,8 @@ services:
     image: postgres:13.3-alpine
     restart: always
     environment:
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${DB_USERNAME}
 
   pgadmin:
     image: dpage/pgadmin4:4.30
