@@ -1,6 +1,7 @@
 package com.anasdidi.security.domain.user;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -63,5 +64,9 @@ public class UserHandlerTests {
         response.expectBody(Map.class).returnResult().getResponseBody();
     Assertions.assertEquals("E001", responseBody.get("code"));
     Assertions.assertEquals("Validation Error!", responseBody.get("message"));
+
+    @SuppressWarnings("unchecked")
+    List<String> errorList = (List<String>) responseBody.get("errors");
+    Assertions.assertEquals(true, !errorList.isEmpty());
   }
 }
