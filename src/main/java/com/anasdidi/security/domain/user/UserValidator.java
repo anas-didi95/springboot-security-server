@@ -23,7 +23,7 @@ class UserValidator {
     }
 
     if (!errorList.isEmpty()) {
-      return Mono.error(new ApplicationException("E001", "Validation Error!"));
+      return Mono.error(new ApplicationException("E001", "Validation Error!", errorList));
     }
 
     return Mono.just(dto);

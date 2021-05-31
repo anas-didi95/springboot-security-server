@@ -51,6 +51,7 @@ class UserHandler {
             ApplicationException ex = (ApplicationException) e;
             responseBody.put("code", ex.getCode());
             responseBody.put("message", ex.getMessage());
+            responseBody.put("errors", ex.getErrorList());
           } else {
             responseBody.put("message", e.getMessage());
           }
