@@ -56,6 +56,8 @@ class UserHandler {
             responseBody.put("message", e.getMessage());
           }
 
+          logger.error("[{}] onError : code={}, message={}", TAG, responseBody.get("code"),
+              responseBody.get("message"));
           return ServerResponse.status(HttpStatus.BAD_REQUEST).bodyValue(responseBody);
         });
   }
