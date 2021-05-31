@@ -57,5 +57,11 @@ public class UserHandlerTests {
     ResponseSpec response = webTestClient.post().uri("/user").accept(MediaType.APPLICATION_JSON)
         .contentType(MediaType.APPLICATION_JSON).bodyValue(requestBody).exchange();
     response.expectStatus().isEqualTo(HttpStatus.BAD_REQUEST);
+
+    @SuppressWarnings("unchecked")
+    Map<String, Object> responseBody =
+        response.expectBody(Map.class).returnResult().getResponseBody();
+    Assertions.assertEquals("E001", responseBody.get("code"));
+    Assertions.assertEquals("Validation Error!", responseBody.get("message"));
   }
 }
