@@ -15,10 +15,12 @@ import reactor.core.publisher.Mono;
 class UserHandler {
 
   private static final Logger logger = LogManager.getLogger(UserHandler.class);
+  private final UserValidator userValidator;
   private final UserService userService;
 
   @Autowired
-  UserHandler(UserService userService) {
+  UserHandler(UserValidator userValidator, UserService userService) {
+    this.userValidator = userValidator;
     this.userService = userService;
   }
 
@@ -32,6 +34,7 @@ class UserHandler {
     @SuppressWarnings("unchecked")
     Mono<Map<String, Object>> subscriber = request.bodyToMono(Map.class)//
         .map(map -> UserDTO.fromMap(map))//
+        .flatMap(dto -> userValidator.validate(UserValidator.Action.CREATE, dto))//
         .flatMap(dto -> userService.create(dto))//
         .map(id -> {
           Map<String, Object> map = new HashMap<>();
@@ -40,6 +43,7 @@ class UserHandler {
         });
 
     return subscriber
-        .flatMap(responseBody -> ServerResponse.status(HttpStatus.CREATED).bodyValue(responseBody));
+        .flatMap(responseBody -> ServerResponse.status(HttpStatus.CREATED).bodyValue(responseBody))//
+        .onErrorResume(e -> ServerResponse.status(HttpStatus.BAD_REQUEST).build());
   }
 }
