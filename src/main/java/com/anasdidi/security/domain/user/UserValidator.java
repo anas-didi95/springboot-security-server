@@ -2,6 +2,7 @@ package com.anasdidi.security.domain.user;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.anasdidi.security.common.ApplicationException;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -22,7 +23,7 @@ class UserValidator {
     }
 
     if (!errorList.isEmpty()) {
-      return Mono.error(new Exception("Validation Error"));
+      return Mono.error(new ApplicationException("E001", "Validation Error!"));
     }
 
     return Mono.just(dto);

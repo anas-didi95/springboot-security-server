@@ -2,6 +2,7 @@ package com.anasdidi.security.domain.user;
 
 import java.util.HashMap;
 import java.util.Map;
+import com.anasdidi.security.common.ApplicationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,17 @@ class UserHandler {
 
     return subscriber
         .flatMap(responseBody -> ServerResponse.status(HttpStatus.CREATED).bodyValue(responseBody))//
-        .onErrorResume(e -> ServerResponse.status(HttpStatus.BAD_REQUEST).build());
+        .onErrorResume(e -> {
+          Map<String, Object> responseBody = new HashMap<>();
+          if (e instanceof ApplicationException) {
+            ApplicationException ex = (ApplicationException) e;
+            responseBody.put("code", ex.getCode());
+            responseBody.put("message", ex.getMessage());
+          } else {
+            responseBody.put("message", e.getMessage());
+          }
+
+          return ServerResponse.status(HttpStatus.BAD_REQUEST).bodyValue(responseBody);
+        });
   }
 }
