@@ -19,4 +19,8 @@ public class ApplicationConstants {
   public String getProperty(String key) {
     return env.getProperty(key);
   }
+
+  public String getErrorMessage(String errorCode) {
+    return env.getProperty("error." + errorCode);
+  }
 }

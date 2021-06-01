@@ -2,6 +2,7 @@ package com.anasdidi.security.domain.user;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.anasdidi.security.common.ApplicationConstants;
 import com.anasdidi.security.common.ApplicationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,9 +13,15 @@ import reactor.core.publisher.Mono;
 class UserValidator {
 
   private static final Logger logger = LogManager.getLogger(UserValidator.class);
+  private final String ERROR_CODE = "E001";
+  private final ApplicationConstants constants;
 
   public enum Action {
     CREATE
+  }
+
+  public UserValidator(ApplicationConstants constants) {
+    this.constants = constants;
   }
 
   public Mono<UserDTO> validate(Action action, UserDTO dto) {
@@ -29,7 +36,8 @@ class UserValidator {
 
     if (!errorList.isEmpty()) {
       logger.error("[{}] validate={}, {}", TAG, action, dto.toString());
-      return Mono.error(new ApplicationException("E001", "Validation Error!", errorList));
+      return Mono.error(
+          new ApplicationException(ERROR_CODE, constants.getErrorMessage(ERROR_CODE), errorList));
     }
 
     return Mono.just(dto);
