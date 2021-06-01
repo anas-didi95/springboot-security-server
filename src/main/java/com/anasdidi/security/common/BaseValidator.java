@@ -5,10 +5,10 @@ import reactor.core.publisher.Mono;
 public abstract class BaseValidator<T> {
 
   protected final String ERROR_CODE = "E001";
-  protected final ApplicationConstants constants;
+  protected final ApplicationMessage message;
 
-  protected BaseValidator(ApplicationConstants constants) {
-    this.constants = constants;
+  protected BaseValidator(ApplicationMessage message) {
+    this.message = message;
   }
 
   protected abstract Mono<T> validate(Action action, T dto);

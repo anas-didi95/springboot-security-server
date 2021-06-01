@@ -2,8 +2,8 @@ package com.anasdidi.security.domain.user;
 
 import java.util.ArrayList;
 import java.util.List;
-import com.anasdidi.security.common.ApplicationConstants;
 import com.anasdidi.security.common.ApplicationException;
+import com.anasdidi.security.common.ApplicationMessage;
 import com.anasdidi.security.common.BaseValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,8 +17,8 @@ class UserValidator extends BaseValidator<UserDTO> {
   private static final Logger logger = LogManager.getLogger(UserValidator.class);
 
   @Autowired
-  public UserValidator(ApplicationConstants constants) {
-    super(constants);
+  public UserValidator(ApplicationMessage message) {
+    super(message);
   }
 
   @Override
@@ -35,7 +35,7 @@ class UserValidator extends BaseValidator<UserDTO> {
     if (!errorList.isEmpty()) {
       logger.error("[{}] validate={}, {}", TAG, action, dto.toString());
       return Mono.error(
-          new ApplicationException(ERROR_CODE, constants.getErrorMessage(ERROR_CODE), errorList));
+          new ApplicationException(ERROR_CODE, message.getErrorMessage(ERROR_CODE), errorList));
     }
 
     return Mono.just(dto);

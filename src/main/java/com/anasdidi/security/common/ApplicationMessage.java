@@ -6,17 +6,17 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 
 @Configuration
-@PropertySource(value = "classpath:resources.properties")
-public class ApplicationConstants {
+@PropertySource(value = "classpath:message.properties")
+public class ApplicationMessage {
 
   private final Environment env;
 
   @Autowired
-  public ApplicationConstants(Environment env) {
+  public ApplicationMessage(Environment env) {
     this.env = env;
   }
 
-  public String getProperty(String key) {
+  public String getMessage(String key) {
     return env.getProperty(key);
   }
 
