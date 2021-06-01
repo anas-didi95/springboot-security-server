@@ -2,7 +2,7 @@ package com.anasdidi.security.domain.user;
 
 import java.util.HashMap;
 import java.util.Map;
-import com.anasdidi.security.common.ApplicationException;
+import com.anasdidi.security.common.BaseHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +13,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
 @Component
-class UserHandler {
+class UserHandler extends BaseHandler {
 
   private static final Logger logger = LogManager.getLogger(UserHandler.class);
   private final UserValidator userValidator;
@@ -43,22 +43,6 @@ class UserHandler {
           return map;
         });
 
-    return subscriber
-        .flatMap(responseBody -> ServerResponse.status(HttpStatus.CREATED).bodyValue(responseBody))//
-        .onErrorResume(e -> {
-          Map<String, Object> responseBody = new HashMap<>();
-          if (e instanceof ApplicationException) {
-            ApplicationException ex = (ApplicationException) e;
-            responseBody.put("code", ex.getCode());
-            responseBody.put("message", ex.getMessage());
-            responseBody.put("errors", ex.getErrorList());
-          } else {
-            responseBody.put("message", e.getMessage());
-          }
-
-          logger.error("[{}] onError : code={}, message={}", TAG, responseBody.get("code"),
-              responseBody.get("message"));
-          return ServerResponse.status(HttpStatus.BAD_REQUEST).bodyValue(responseBody);
-        });
+    return sendResponse(subscriber, HttpStatus.CREATED);
   }
 }

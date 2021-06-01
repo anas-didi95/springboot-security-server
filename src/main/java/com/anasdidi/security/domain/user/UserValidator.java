@@ -3,21 +3,26 @@ package com.anasdidi.security.domain.user;
 import java.util.ArrayList;
 import java.util.List;
 import com.anasdidi.security.common.ApplicationException;
+import com.anasdidi.security.common.ApplicationMessage;
+import com.anasdidi.security.common.BaseValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
-class UserValidator {
+class UserValidator extends BaseValidator<UserDTO> {
 
   private static final Logger logger = LogManager.getLogger(UserValidator.class);
 
-  public enum Action {
-    CREATE
+  @Autowired
+  public UserValidator(ApplicationMessage message) {
+    super(message);
   }
 
-  public Mono<UserDTO> validate(Action action, UserDTO dto) {
+  @Override
+  protected Mono<UserDTO> validate(Action action, UserDTO dto) {
     final String TAG = "validate";
     List<String> errorList = new ArrayList<>();
 
@@ -29,7 +34,8 @@ class UserValidator {
 
     if (!errorList.isEmpty()) {
       logger.error("[{}] validate={}, {}", TAG, action, dto.toString());
-      return Mono.error(new ApplicationException("E001", "Validation Error!", errorList));
+      return Mono.error(
+          new ApplicationException(ERROR_CODE, message.getErrorMessage(ERROR_CODE), errorList));
     }
 
     return Mono.just(dto);
