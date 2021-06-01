@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
-public class BaseHandler {
+public abstract class BaseHandler {
 
   private static final Logger logger = LogManager.getLogger(BaseHandler.class);
 

@@ -4,27 +4,25 @@ import java.util.ArrayList;
 import java.util.List;
 import com.anasdidi.security.common.ApplicationConstants;
 import com.anasdidi.security.common.ApplicationException;
+import com.anasdidi.security.common.BaseValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
-class UserValidator {
+class UserValidator extends BaseValidator<UserDTO> {
 
   private static final Logger logger = LogManager.getLogger(UserValidator.class);
-  private final String ERROR_CODE = "E001";
-  private final ApplicationConstants constants;
 
-  public enum Action {
-    CREATE
-  }
-
+  @Autowired
   public UserValidator(ApplicationConstants constants) {
-    this.constants = constants;
+    super(constants);
   }
 
-  public Mono<UserDTO> validate(Action action, UserDTO dto) {
+  @Override
+  protected Mono<UserDTO> validate(Action action, UserDTO dto) {
     final String TAG = "validate";
     List<String> errorList = new ArrayList<>();
 
