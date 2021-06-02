@@ -5,6 +5,7 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
@@ -33,5 +34,25 @@ public abstract class BaseHandler {
               responseBody.get("message"));
           return ServerResponse.status(HttpStatus.BAD_REQUEST).bodyValue(responseBody);
         });
+  }
+
+  protected Mono<Map<String, Object>> getRequestData(ServerRequest request) {
+    Mono<Map<String, Object>> session = request.session().map(s -> {
+      Map<String, Object> map = new HashMap<>();
+      map.put("sessionId", s.getId());
+      map.put("sessionStartTime", s.getCreationTime());
+      return map;
+    });
+
+    @SuppressWarnings("unchecked")
+    Mono<Map<String, Object>> requestData =
+        Mono.zip(session, request.bodyToMono(Map.class), (sessionMap, requestBody) -> {
+          Map<String, Object> map = new HashMap<>();
+          map.putAll(sessionMap);
+          map.putAll(requestBody);
+          return map;
+        });
+
+    return requestData;
   }
 }

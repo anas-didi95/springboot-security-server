@@ -32,7 +32,6 @@ public class UserHandlerTests {
     map.put("password", "password" + suffix);
     map.put("fullName", "fullName" + suffix);
     map.put("email", "email" + suffix);
-
     return map;
   }
 

@@ -24,7 +24,7 @@ class UserServiceBean implements UserService {
     final String TAG = "create";
 
     if (logger.isDebugEnabled()) {
-      logger.debug("[{}] {}", TAG, dto);
+      logger.debug("[{}:{}] {}", TAG, dto.sessionId, dto);
     }
 
     return Mono.just(dto.toVO())//
@@ -33,7 +33,6 @@ class UserServiceBean implements UserService {
           vo.setId(id);
           vo.setLastModifiedDate(new Date());
           vo.setVersion(0);
-
           return vo;
         })//
         .map(vo -> userRepository.save(vo))//

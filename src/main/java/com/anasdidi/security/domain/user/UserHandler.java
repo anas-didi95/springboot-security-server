@@ -32,8 +32,7 @@ class UserHandler extends BaseHandler {
       logger.debug("[{}] request={}", TAG, request);
     }
 
-    @SuppressWarnings("unchecked")
-    Mono<Map<String, Object>> subscriber = request.bodyToMono(Map.class)//
+    Mono<Map<String, Object>> subscriber = getRequestData(request)//
         .map(map -> UserDTO.fromMap(map))//
         .flatMap(dto -> userValidator.validate(UserValidator.Action.CREATE, dto))//
         .flatMap(dto -> userService.create(dto))//
