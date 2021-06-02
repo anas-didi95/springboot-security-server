@@ -2,8 +2,9 @@ package com.anasdidi.security.domain.user;
 
 import java.util.Date;
 import java.util.Map;
+import com.anasdidi.security.common.BaseDTO;
 
-class UserDTO {
+class UserDTO extends BaseDTO {
 
   final String id;
   final String username;
@@ -13,8 +14,9 @@ class UserDTO {
   final Date lastModifiedDate;
   final Integer version;
 
-  private UserDTO(String id, String username, String password, String fullName, String email,
-      Date lastModifiedDate, Integer version) {
+  private UserDTO(String sessionId, String id, String username, String password, String fullName,
+      String email, Date lastModifiedDate, Integer version) {
+    super(sessionId);
     this.id = id;
     this.username = username;
     this.password = password;
@@ -25,6 +27,7 @@ class UserDTO {
   }
 
   static UserDTO fromMap(Map<String, Object> map) {
+    String sessionId = (String) map.get("sessionId");
     String id = (String) map.get("id");
     String username = (String) map.get("username");
     String password = (String) map.get("password");
@@ -33,7 +36,8 @@ class UserDTO {
     Date lastModifiedDate = (Date) map.get("lastModifiedDate");
     Integer version = (Integer) map.get("version");
 
-    return new UserDTO(id, username, password, fullName, email, lastModifiedDate, version);
+    return new UserDTO(sessionId, id, username, password, fullName, email, lastModifiedDate,
+        version);
   }
 
   UserVO toVO() {
