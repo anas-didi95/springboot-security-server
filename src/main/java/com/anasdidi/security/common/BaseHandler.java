@@ -52,7 +52,6 @@ public abstract class BaseHandler {
     return request.session().map(s -> {
       Map<String, Object> map = new HashMap<>();
       map.put("sessionId", ApplicationUtils.getFormattedUUID(s.getId()));
-      map.put("sessionStartTime", s.getCreationTime());
       return map;
     });
   }
