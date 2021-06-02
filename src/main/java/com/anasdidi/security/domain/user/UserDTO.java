@@ -2,10 +2,10 @@ package com.anasdidi.security.domain.user;
 
 import java.util.Date;
 import java.util.Map;
+import com.anasdidi.security.common.BaseDTO;
 
-class UserDTO {
+class UserDTO extends BaseDTO {
 
-  final String sessionId;
   final String id;
   final String username;
   final String password;
@@ -16,7 +16,7 @@ class UserDTO {
 
   private UserDTO(String sessionId, String id, String username, String password, String fullName,
       String email, Date lastModifiedDate, Integer version) {
-    this.sessionId = sessionId;
+    super(sessionId);
     this.id = id;
     this.username = username;
     this.password = password;
