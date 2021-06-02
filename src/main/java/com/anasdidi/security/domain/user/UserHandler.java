@@ -42,6 +42,6 @@ class UserHandler extends BaseHandler {
           return map;
         });
 
-    return sendResponse(subscriber, HttpStatus.CREATED);
+    return sendResponse(subscriber, HttpStatus.CREATED, request);
   }
 }
