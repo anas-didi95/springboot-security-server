@@ -39,7 +39,7 @@ public abstract class BaseHandler {
   protected Mono<Map<String, Object>> getRequestData(ServerRequest request) {
     Mono<Map<String, Object>> session = request.session().map(s -> {
       Map<String, Object> map = new HashMap<>();
-      map.put("sessionId", s.getId());
+      map.put("sessionId", ApplicationUtils.getFormattedUUID(s.getId()));
       map.put("sessionStartTime", s.getCreationTime());
       return map;
     });
