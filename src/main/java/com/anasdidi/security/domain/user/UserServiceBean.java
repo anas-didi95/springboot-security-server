@@ -2,6 +2,8 @@ package com.anasdidi.security.domain.user;
 
 import java.util.Date;
 import java.util.UUID;
+import com.anasdidi.security.common.ApplicationException;
+import com.anasdidi.security.common.ApplicationMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +15,12 @@ class UserServiceBean implements UserService {
 
   private static final Logger logger = LogManager.getLogger(UserServiceBean.class);
   private final UserRepository userRepository;
+  private final ApplicationMessage message;
 
   @Autowired
-  UserServiceBean(UserRepository userRepository) {
+  UserServiceBean(UserRepository userRepository, ApplicationMessage message) {
     this.userRepository = userRepository;
+    this.message = message;
   }
 
   @Override
@@ -36,6 +40,11 @@ class UserServiceBean implements UserService {
           return vo;
         })//
         .map(vo -> userRepository.save(vo))//
-        .map(vo -> vo.getId());
+        .doOnError(e -> {
+          logger.error("[{}:{}] {}", TAG, dto.sessionId, e.getMessage());
+          logger.error("[{}:{}] {}", TAG, dto.sessionId, dto);
+          e.addSuppressed(new ApplicationException(UserConstants.ERROR_CREATE,
+              message.getErrorMessage(UserConstants.ERROR_CREATE), e.getMessage()));
+        }).map(vo -> vo.getId());
   }
 }

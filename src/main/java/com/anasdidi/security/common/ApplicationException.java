@@ -1,5 +1,6 @@
 package com.anasdidi.security.common;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class ApplicationException extends Exception {
@@ -12,6 +13,12 @@ public class ApplicationException extends Exception {
     this.code = code;
     this.message = message;
     this.errorList = errorList;
+  }
+
+  public ApplicationException(String code, String message, String error) {
+    this.code = code;
+    this.message = message;
+    this.errorList = Arrays.asList(error);
   }
 
   public String getCode() {

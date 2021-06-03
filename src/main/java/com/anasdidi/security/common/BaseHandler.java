@@ -1,7 +1,9 @@
 package com.anasdidi.security.common;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -22,8 +24,19 @@ public abstract class BaseHandler {
       return ServerResponse.status(httpStatus).bodyValue(responseBody);
     }).onErrorResume(e -> {
       Map<String, Object> responseBody = new HashMap<>();
+      ApplicationException ex = null;
+
       if (e instanceof ApplicationException) {
-        ApplicationException ex = (ApplicationException) e;
+        ex = (ApplicationException) e;
+      } else if (e.getSuppressed().length > 0) {
+        Optional<Throwable> ee = Arrays.stream(e.getSuppressed())
+            .filter(t -> t instanceof ApplicationException).findFirst();
+        if (ee.isPresent()) {
+          ex = (ApplicationException) ee.get();
+        }
+      }
+
+      if (ex != null) {
         responseBody.put("code", ex.getCode());
         responseBody.put("message", ex.getMessage());
         responseBody.put("errors", ex.getErrorList());
