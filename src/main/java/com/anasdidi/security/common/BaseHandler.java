@@ -24,20 +24,22 @@ public abstract class BaseHandler {
       return ServerResponse.status(httpStatus).bodyValue(responseBody);
     }).onErrorResume(e -> {
       Map<String, Object> responseBody = new HashMap<>();
+      ApplicationException ex = null;
+
       if (e instanceof ApplicationException) {
-        ApplicationException ex = (ApplicationException) e;
-        responseBody.put("code", ex.getCode());
-        responseBody.put("message", ex.getMessage());
-        responseBody.put("errors", ex.getErrorList());
+        ex = (ApplicationException) e;
       } else if (e.getSuppressed().length > 0) {
         Optional<Throwable> ee = Arrays.stream(e.getSuppressed())
             .filter(t -> t instanceof ApplicationException).findFirst();
         if (ee.isPresent()) {
-          ApplicationException ex = (ApplicationException) ee.get();
-          responseBody.put("code", ex.getCode());
-          responseBody.put("message", ex.getMessage());
-          responseBody.put("errors", ex.getErrorList());
+          ex = (ApplicationException) ee.get();
         }
+      }
+
+      if (ex != null) {
+        responseBody.put("code", ex.getCode());
+        responseBody.put("message", ex.getMessage());
+        responseBody.put("errors", ex.getErrorList());
       } else {
         responseBody.put("message", e.getMessage());
       }

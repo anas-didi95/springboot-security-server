@@ -15,10 +15,12 @@ class UserServiceBean implements UserService {
 
   private static final Logger logger = LogManager.getLogger(UserServiceBean.class);
   private final UserRepository userRepository;
+  private final ApplicationMessage message;
 
   @Autowired
-  UserServiceBean(UserRepository userRepository) {
+  UserServiceBean(UserRepository userRepository, ApplicationMessage message) {
     this.userRepository = userRepository;
+    this.message = message;
   }
 
   @Override
@@ -41,8 +43,8 @@ class UserServiceBean implements UserService {
         .doOnError(e -> {
           logger.error("[{}:{}] {}", TAG, dto.sessionId, e.getMessage());
           logger.error("[{}:{}] {}", TAG, dto.sessionId, dto);
-          e.addSuppressed(
-              new ApplicationException("E101", "User creation failed!", e.getMessage()));
+          e.addSuppressed(new ApplicationException(UserConstants.ERROR_CREATE,
+              message.getErrorMessage(UserConstants.ERROR_CREATE), e.getMessage()));
         }).map(vo -> vo.getId());
   }
 }
