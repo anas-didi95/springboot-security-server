@@ -65,7 +65,7 @@ public class UserHandlerTests {
         response.expectBody(Map.class).returnResult().getResponseBody();
 
     Assertions.assertEquals("E001", responseBody.get("code"));
-    Assertions.assertEquals("Validation Error!", responseBody.get("message"));
+    Assertions.assertEquals("Validation error!", responseBody.get("message"));
 
     @SuppressWarnings("unchecked")
     List<String> errorList = (List<String>) responseBody.get("errors");
