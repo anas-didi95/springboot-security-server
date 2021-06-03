@@ -19,10 +19,12 @@ import org.springframework.test.web.reactive.server.WebTestClient.ResponseSpec;
 public class UserHandlerTests {
 
   private final WebTestClient webTestClient;
+  private final UserService userService;
 
   @Autowired
-  public UserHandlerTests(WebTestClient webTestClient) {
+  public UserHandlerTests(WebTestClient webTestClient, UserService userService) {
     this.webTestClient = webTestClient;
+    this.userService = userService;
   }
 
   private Map<String, Object> generateUserMap() {
@@ -61,8 +63,30 @@ public class UserHandlerTests {
     @SuppressWarnings("unchecked")
     Map<String, Object> responseBody =
         response.expectBody(Map.class).returnResult().getResponseBody();
+
     Assertions.assertEquals("E001", responseBody.get("code"));
     Assertions.assertEquals("Validation Error!", responseBody.get("message"));
+
+    @SuppressWarnings("unchecked")
+    List<String> errorList = (List<String>) responseBody.get("errors");
+    Assertions.assertEquals(true, !errorList.isEmpty());
+  }
+
+  @Test
+  public void testUserCreateServiceError() {
+    Map<String, Object> requestBody = generateUserMap();
+
+    ResponseSpec response = userService.create(UserDTO.fromMap(requestBody))
+        .map(id -> webTestClient.post().uri("/user").accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON).bodyValue(requestBody).exchange())
+        .block();
+    response.expectStatus().isEqualTo(HttpStatus.BAD_REQUEST);
+
+    @SuppressWarnings("unchecked")
+    Map<String, Object> responseBody =
+        response.expectBody(Map.class).returnResult().getResponseBody();
+    Assertions.assertEquals("E101", responseBody.get("code"));
+    Assertions.assertEquals("User creation failed!", responseBody.get("message"));
 
     @SuppressWarnings("unchecked")
     List<String> errorList = (List<String>) responseBody.get("errors");
