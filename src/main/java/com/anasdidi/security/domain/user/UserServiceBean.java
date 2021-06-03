@@ -2,6 +2,8 @@ package com.anasdidi.security.domain.user;
 
 import java.util.Date;
 import java.util.UUID;
+import com.anasdidi.security.common.ApplicationException;
+import com.anasdidi.security.common.ApplicationMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +38,11 @@ class UserServiceBean implements UserService {
           return vo;
         })//
         .map(vo -> userRepository.save(vo))//
-        .map(vo -> vo.getId());
+        .doOnError(e -> {
+          logger.error("[{}:{}] {}", TAG, dto.sessionId, e.getMessage());
+          logger.error("[{}:{}] {}", TAG, dto.sessionId, dto);
+          e.addSuppressed(
+              new ApplicationException("E101", "User creation failed!", e.getMessage()));
+        }).map(vo -> vo.getId());
   }
 }
