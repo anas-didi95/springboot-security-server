@@ -2,6 +2,7 @@ package com.anasdidi.security.domain.user;
 
 import java.util.HashMap;
 import java.util.Map;
+import com.anasdidi.security.common.ApplicationMessage;
 import com.anasdidi.security.common.BaseHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,7 +21,8 @@ class UserHandler extends BaseHandler {
   private final UserService userService;
 
   @Autowired
-  UserHandler(UserValidator userValidator, UserService userService) {
+  UserHandler(ApplicationMessage message, UserValidator userValidator, UserService userService) {
+    super(message);
     this.userValidator = userValidator;
     this.userService = userService;
   }
@@ -32,15 +34,16 @@ class UserHandler extends BaseHandler {
       logger.debug("[{}] request={}", TAG, request);
     }
 
-    Mono<Map<String, Object>> subscriber = getRequestData(request)//
-        .map(map -> UserDTO.fromMap(map))//
-        .flatMap(dto -> userValidator.validate(UserValidator.Action.CREATE, dto))//
-        .flatMap(dto -> userService.create(dto))//
-        .map(id -> {
-          Map<String, Object> map = new HashMap<>();
-          map.put("id", id);
-          return map;
-        });
+    Mono<Map<String, Object>> subscriber =
+        getRequestData(request, "{username,password,fullName,email}")//
+            .map(map -> UserDTO.fromMap(map))//
+            .flatMap(dto -> userValidator.validate(UserValidator.Action.CREATE, dto))//
+            .flatMap(dto -> userService.create(dto))//
+            .map(id -> {
+              Map<String, Object> map = new HashMap<>();
+              map.put("id", id);
+              return map;
+            });
 
     return sendResponse(subscriber, HttpStatus.CREATED, request);
   }

@@ -52,6 +52,23 @@ public class UserHandlerTests {
   }
 
   @Test
+  public void testUserCreateRequestBodyEmptyError() {
+    ResponseSpec response = webTestClient.post().uri("/user").accept(MediaType.APPLICATION_JSON)
+        .contentType(MediaType.APPLICATION_JSON).exchange();
+    response.expectStatus().isEqualTo(HttpStatus.BAD_REQUEST);
+
+    @SuppressWarnings("unchecked")
+    Map<String, Object> responseBody =
+        response.expectBody(Map.class).returnResult().getResponseBody();
+    Assertions.assertEquals("E002", responseBody.get("code"));
+    Assertions.assertEquals("Request body is empty!", responseBody.get("message"));
+
+    @SuppressWarnings("unchecked")
+    List<String> errorList = (List<String>) responseBody.get("errors");
+    Assertions.assertEquals(true, !errorList.isEmpty());
+  }
+
+  @Test
   public void testUserCreateValidationError() {
     Map<String, Object> requestBody = generateUserMap();
     requestBody.put("username", null);
@@ -63,7 +80,6 @@ public class UserHandlerTests {
     @SuppressWarnings("unchecked")
     Map<String, Object> responseBody =
         response.expectBody(Map.class).returnResult().getResponseBody();
-
     Assertions.assertEquals("E001", responseBody.get("code"));
     Assertions.assertEquals("Validation error!", responseBody.get("message"));
 

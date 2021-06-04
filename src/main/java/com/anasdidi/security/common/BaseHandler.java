@@ -14,6 +14,12 @@ import reactor.core.publisher.Mono;
 public abstract class BaseHandler {
 
   private static final Logger logger = LogManager.getLogger(BaseHandler.class);
+  private static final String ERROR_REQUEST_BODY_EMPTY = "E002";
+  private final ApplicationMessage message;
+
+  public BaseHandler(ApplicationMessage message) {
+    this.message = message;
+  }
 
   protected Mono<ServerResponse> sendResponse(Mono<Map<String, Object>> subscriber,
       HttpStatus httpStatus, ServerRequest request) {
@@ -50,15 +56,21 @@ public abstract class BaseHandler {
     });
   }
 
-  @SuppressWarnings("unchecked")
-  protected Mono<Map<String, Object>> getRequestData(ServerRequest request) {
-    return Mono.zip(getSessionData(request), request.bodyToMono(Map.class),
-        (sessionMap, requestBody) -> {
-          Map<String, Object> map = new HashMap<>();
-          map.putAll(sessionMap);
-          map.putAll(requestBody);
-          return map;
-        });
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  protected Mono<Map<String, Object>> getRequestData(ServerRequest request, String json) {
+    Mono<Map> requestBody = request.bodyToMono(Map.class);
+    if (json != null && !json.isBlank()) {
+      requestBody = requestBody.switchIfEmpty(
+          Mono.defer(() -> Mono.error(new ApplicationException(ERROR_REQUEST_BODY_EMPTY,
+              message.getErrorMessage(ERROR_REQUEST_BODY_EMPTY), "Required json: " + json))));
+    }
+
+    return Mono.zip(getSessionData(request), requestBody, (sessionMap, requestMap) -> {
+      Map<String, Object> map = new HashMap<>();
+      map.putAll(sessionMap);
+      map.putAll(requestMap);
+      return map;
+    });
   }
 
   private Mono<Map<String, Object>> getSessionData(ServerRequest request) {
