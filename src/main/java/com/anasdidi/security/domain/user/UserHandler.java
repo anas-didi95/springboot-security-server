@@ -32,15 +32,16 @@ class UserHandler extends BaseHandler {
       logger.debug("[{}] request={}", TAG, request);
     }
 
-    Mono<Map<String, Object>> subscriber = getRequestData(request, true)//
-        .map(map -> UserDTO.fromMap(map))//
-        .flatMap(dto -> userValidator.validate(UserValidator.Action.CREATE, dto))//
-        .flatMap(dto -> userService.create(dto))//
-        .map(id -> {
-          Map<String, Object> map = new HashMap<>();
-          map.put("id", id);
-          return map;
-        });
+    Mono<Map<String, Object>> subscriber =
+        getRequestData(request, "{username,password,fullName,email}")//
+            .map(map -> UserDTO.fromMap(map))//
+            .flatMap(dto -> userValidator.validate(UserValidator.Action.CREATE, dto))//
+            .flatMap(dto -> userService.create(dto))//
+            .map(id -> {
+              Map<String, Object> map = new HashMap<>();
+              map.put("id", id);
+              return map;
+            });
 
     return sendResponse(subscriber, HttpStatus.CREATED, request);
   }

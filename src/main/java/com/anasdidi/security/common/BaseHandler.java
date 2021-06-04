@@ -51,12 +51,11 @@ public abstract class BaseHandler {
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  protected Mono<Map<String, Object>> getRequestData(ServerRequest request,
-      boolean isRequestBodyMandatory) {
+  protected Mono<Map<String, Object>> getRequestData(ServerRequest request, String json) {
     Mono<Map> requestBody = request.bodyToMono(Map.class);
-    if (isRequestBodyMandatory) {
-      requestBody = requestBody.switchIfEmpty(Mono
-          .defer(() -> Mono.error(new ApplicationException("E002", "Request body is empty!", ""))));
+    if (json != null && !json.isBlank()) {
+      requestBody = requestBody.switchIfEmpty(Mono.defer(() -> Mono.error(
+          new ApplicationException("E002", "Request body is empty!", "Required json: " + json))));
     }
 
     return Mono.zip(getSessionData(request), requestBody, (sessionMap, requestMap) -> {
