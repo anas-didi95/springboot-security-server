@@ -50,15 +50,21 @@ public abstract class BaseHandler {
     });
   }
 
-  @SuppressWarnings("unchecked")
-  protected Mono<Map<String, Object>> getRequestData(ServerRequest request) {
-    return Mono.zip(getSessionData(request), request.bodyToMono(Map.class),
-        (sessionMap, requestBody) -> {
-          Map<String, Object> map = new HashMap<>();
-          map.putAll(sessionMap);
-          map.putAll(requestBody);
-          return map;
-        });
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  protected Mono<Map<String, Object>> getRequestData(ServerRequest request,
+      boolean isRequestBodyMandatory) {
+    Mono<Map> requestBody = request.bodyToMono(Map.class);
+    if (isRequestBodyMandatory) {
+      requestBody = requestBody.switchIfEmpty(Mono
+          .defer(() -> Mono.error(new ApplicationException("E002", "Request body is empty!", ""))));
+    }
+
+    return Mono.zip(getSessionData(request), requestBody, (sessionMap, requestMap) -> {
+      Map<String, Object> map = new HashMap<>();
+      map.putAll(sessionMap);
+      map.putAll(requestMap);
+      return map;
+    });
   }
 
   private Mono<Map<String, Object>> getSessionData(ServerRequest request) {

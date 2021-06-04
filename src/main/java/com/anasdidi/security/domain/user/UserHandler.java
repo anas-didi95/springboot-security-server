@@ -32,7 +32,7 @@ class UserHandler extends BaseHandler {
       logger.debug("[{}] request={}", TAG, request);
     }
 
-    Mono<Map<String, Object>> subscriber = getRequestData(request)//
+    Mono<Map<String, Object>> subscriber = getRequestData(request, true)//
         .map(map -> UserDTO.fromMap(map))//
         .flatMap(dto -> userValidator.validate(UserValidator.Action.CREATE, dto))//
         .flatMap(dto -> userService.create(dto))//
