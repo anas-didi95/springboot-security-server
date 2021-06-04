@@ -52,7 +52,7 @@ public class UserHandlerTests {
   }
 
   @Test
-  public void testUserCreateRequestBodyError() {
+  public void testUserCreateRequestBodyEmptyError() {
     ResponseSpec response = webTestClient.post().uri("/user").accept(MediaType.APPLICATION_JSON)
         .contentType(MediaType.APPLICATION_JSON).exchange();
     response.expectStatus().isEqualTo(HttpStatus.BAD_REQUEST);

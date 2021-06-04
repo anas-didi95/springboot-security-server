@@ -19,6 +19,7 @@ public class SecurityApplicationTests {
   @Test
   public void contextLoads() {
     Assertions.assertEquals("Validation error!", message.getMessage("error.E001"));
+    Assertions.assertEquals("Request body is empty!", message.getMessage("error.E002"));
     Assertions.assertEquals("User creation failed!", message.getMessage("error.E101"));
   }
 }

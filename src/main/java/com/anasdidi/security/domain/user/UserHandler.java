@@ -2,6 +2,7 @@ package com.anasdidi.security.domain.user;
 
 import java.util.HashMap;
 import java.util.Map;
+import com.anasdidi.security.common.ApplicationMessage;
 import com.anasdidi.security.common.BaseHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,7 +21,8 @@ class UserHandler extends BaseHandler {
   private final UserService userService;
 
   @Autowired
-  UserHandler(UserValidator userValidator, UserService userService) {
+  UserHandler(ApplicationMessage message, UserValidator userValidator, UserService userService) {
+    super(message);
     this.userValidator = userValidator;
     this.userService = userService;
   }
