@@ -3,6 +3,7 @@ package com.anasdidi.security.domain.user;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,11 +21,14 @@ public class UserHandlerTests {
 
   private final WebTestClient webTestClient;
   private final UserService userService;
+  private final UserRepository userRepository;
 
   @Autowired
-  public UserHandlerTests(WebTestClient webTestClient, UserService userService) {
+  public UserHandlerTests(WebTestClient webTestClient, UserService userService,
+      UserRepository userRepository) {
     this.webTestClient = webTestClient;
     this.userService = userService;
+    this.userRepository = userRepository;
   }
 
   private Map<String, Object> generateUserMap() {
@@ -49,6 +53,20 @@ public class UserHandlerTests {
     Map<String, Object> responseBody =
         response.expectBody(Map.class).returnResult().getResponseBody();
     Assertions.assertNotNull(responseBody.get("id"));
+
+    String userId = (String) responseBody.get("id");
+    Optional<UserVO> userVO = userRepository.findById(userId);
+    if (userVO.isPresent()) {
+      UserVO vo = userVO.get();
+      Assertions.assertEquals(requestBody.get("username"), vo.getUsername());
+      Assertions.assertEquals(requestBody.get("password"), vo.getPassword());
+      Assertions.assertEquals(requestBody.get("fullName"), vo.getFullName());
+      Assertions.assertEquals(requestBody.get("email"), vo.getEmail());
+      Assertions.assertEquals(0, vo.getVersion());
+      Assertions.assertNotNull(vo.getLastModifiedDate());
+    } else {
+      Assertions.fail("User not found");
+    }
   }
 
   @Test
