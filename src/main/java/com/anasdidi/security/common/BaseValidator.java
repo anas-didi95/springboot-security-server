@@ -4,7 +4,7 @@ import reactor.core.publisher.Mono;
 
 public abstract class BaseValidator<T> {
 
-  protected final String ERROR_CODE = "E001";
+  protected final String ERROR_CODE = "E002";
   protected final ApplicationMessage message;
 
   protected BaseValidator(ApplicationMessage message) {

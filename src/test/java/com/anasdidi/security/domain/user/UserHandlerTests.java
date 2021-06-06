@@ -60,7 +60,7 @@ public class UserHandlerTests {
     @SuppressWarnings("unchecked")
     Map<String, Object> responseBody =
         response.expectBody(Map.class).returnResult().getResponseBody();
-    Assertions.assertEquals("E002", responseBody.get("code"));
+    Assertions.assertEquals("E001", responseBody.get("code"));
     Assertions.assertEquals("Request body is empty!", responseBody.get("message"));
 
     @SuppressWarnings("unchecked")
@@ -80,7 +80,7 @@ public class UserHandlerTests {
     @SuppressWarnings("unchecked")
     Map<String, Object> responseBody =
         response.expectBody(Map.class).returnResult().getResponseBody();
-    Assertions.assertEquals("E001", responseBody.get("code"));
+    Assertions.assertEquals("E002", responseBody.get("code"));
     Assertions.assertEquals("Validation error!", responseBody.get("message"));
 
     @SuppressWarnings("unchecked")

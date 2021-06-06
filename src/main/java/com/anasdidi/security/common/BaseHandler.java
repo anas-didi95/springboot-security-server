@@ -14,7 +14,7 @@ import reactor.core.publisher.Mono;
 public abstract class BaseHandler {
 
   private static final Logger logger = LogManager.getLogger(BaseHandler.class);
-  private static final String ERROR_REQUEST_BODY_EMPTY = "E002";
+  private static final String ERROR_REQUEST_BODY_EMPTY = "E001";
   private final ApplicationMessage message;
 
   public BaseHandler(ApplicationMessage message) {

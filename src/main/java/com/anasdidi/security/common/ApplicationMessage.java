@@ -21,6 +21,6 @@ public class ApplicationMessage {
   }
 
   public String getErrorMessage(String errorCode) {
-    return env.getProperty("error." + errorCode);
+    return env.getProperty("message.error." + errorCode);
   }
 }
