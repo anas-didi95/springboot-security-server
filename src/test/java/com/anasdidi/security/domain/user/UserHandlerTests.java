@@ -41,6 +41,15 @@ public class UserHandlerTests {
     return map;
   }
 
+  private void assertVO(Map<String, Object> expected, UserVO actual) {
+    Assertions.assertEquals(expected.get("username"), actual.getUsername());
+    Assertions.assertEquals(expected.get("password"), actual.getPassword());
+    Assertions.assertEquals(expected.get("fullName"), actual.getFullName());
+    Assertions.assertEquals(expected.get("email"), actual.getEmail());
+    Assertions.assertNotNull(actual.getVersion());
+    Assertions.assertNotNull(actual.getLastModifiedDate());
+  }
+
   @Test
   public void testUserCreateSuccess() {
     Map<String, Object> requestBody = generateUserMap();
@@ -57,13 +66,7 @@ public class UserHandlerTests {
     String userId = (String) responseBody.get("id");
     Optional<UserVO> userVO = userRepository.findById(userId);
     if (userVO.isPresent()) {
-      UserVO vo = userVO.get();
-      Assertions.assertEquals(requestBody.get("username"), vo.getUsername());
-      Assertions.assertEquals(requestBody.get("password"), vo.getPassword());
-      Assertions.assertEquals(requestBody.get("fullName"), vo.getFullName());
-      Assertions.assertEquals(requestBody.get("email"), vo.getEmail());
-      Assertions.assertEquals(0, vo.getVersion());
-      Assertions.assertNotNull(vo.getLastModifiedDate());
+      assertVO(requestBody, userVO.get());
     } else {
       Assertions.fail("User not found");
     }
@@ -152,13 +155,7 @@ public class UserHandlerTests {
     String userId = (String) responseBody.get("id");
     Optional<UserVO> result = userRepository.findById(userId);
     if (result.isPresent()) {
-      UserVO vo = result.get();
-      Assertions.assertEquals(userMap.get("username"), vo.getUsername());
-      Assertions.assertEquals(userMap.get("password"), vo.getPassword());
-      Assertions.assertEquals(userMap.get("fullName"), vo.getFullName());
-      Assertions.assertEquals(userMap.get("email"), vo.getEmail());
-      Assertions.assertNotNull(vo.getVersion());
-      Assertions.assertNotNull(vo.getLastModifiedDate());
+      assertVO(userMap, result.get());
     } else {
       Assertions.fail("User not found!");
     }
