@@ -41,6 +41,15 @@ public class UserHandlerTests {
     return map;
   }
 
+  private void assertVO(Map<String, Object> expected, UserVO actual) {
+    Assertions.assertEquals(expected.get("username"), actual.getUsername());
+    Assertions.assertEquals(expected.get("password"), actual.getPassword());
+    Assertions.assertEquals(expected.get("fullName"), actual.getFullName());
+    Assertions.assertEquals(expected.get("email"), actual.getEmail());
+    Assertions.assertNotNull(actual.getVersion());
+    Assertions.assertNotNull(actual.getLastModifiedDate());
+  }
+
   @Test
   public void testUserCreateSuccess() {
     Map<String, Object> requestBody = generateUserMap();
@@ -57,13 +66,7 @@ public class UserHandlerTests {
     String userId = (String) responseBody.get("id");
     Optional<UserVO> userVO = userRepository.findById(userId);
     if (userVO.isPresent()) {
-      UserVO vo = userVO.get();
-      Assertions.assertEquals(requestBody.get("username"), vo.getUsername());
-      Assertions.assertEquals(requestBody.get("password"), vo.getPassword());
-      Assertions.assertEquals(requestBody.get("fullName"), vo.getFullName());
-      Assertions.assertEquals(requestBody.get("email"), vo.getEmail());
-      Assertions.assertEquals(0, vo.getVersion());
-      Assertions.assertNotNull(vo.getLastModifiedDate());
+      assertVO(requestBody, userVO.get());
     } else {
       Assertions.fail("User not found");
     }
@@ -125,5 +128,36 @@ public class UserHandlerTests {
     @SuppressWarnings("unchecked")
     List<String> errorList = (List<String>) responseBody.get("errors");
     Assertions.assertEquals(true, !errorList.isEmpty());
+  }
+
+  @Test
+  public void testUserUpdateSuccess() {
+    Map<String, Object> userMap = generateUserMap();
+    String suffix = "testUserUpdateSuccess";
+    String fullName = "fullName" + suffix;
+    String email = "email" + suffix;
+
+    ResponseSpec response = userService.create(UserDTO.fromMap(userMap)).map(id -> {
+      userMap.put("fullName", fullName);
+      userMap.put("email", email);
+
+      return webTestClient.put().uri("/user/" + id).accept(MediaType.APPLICATION_JSON)
+          .contentType(MediaType.APPLICATION_JSON).bodyValue(userMap).exchange();
+    }).block();
+    response.expectStatus().isEqualTo(HttpStatus.OK);
+
+    @SuppressWarnings("unchecked")
+    Map<String, Object> responseBody =
+        response.expectBody(Map.class).returnResult().getResponseBody();
+    Assertions.assertNotNull(responseBody.get("id"));
+
+
+    String userId = (String) responseBody.get("id");
+    Optional<UserVO> result = userRepository.findById(userId);
+    if (result.isPresent()) {
+      assertVO(userMap, result.get());
+    } else {
+      Assertions.fail("User not found!");
+    }
   }
 }

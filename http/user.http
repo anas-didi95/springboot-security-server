@@ -1,4 +1,5 @@
 @baseUrl = http://{{$processEnv APP_HOST}}:{{$processEnv APP_PORT}}/security/user
+@userId = {{create.response.body.$.id}}
 
 // @name create
 POST {{baseUrl}}
@@ -10,4 +11,16 @@ Content-Type: application/json
   "password": "password",
   "fullName": "fullName",
   "email": "email@domain.com"
+}
+
+###
+
+// @name update
+PUT {{baseUrl}}/{{userId}}
+Accept: application/json
+Content-Type: application/json
+
+{
+   "fullName": "fullName2",
+   "email": "email2@domain.com"
 }
