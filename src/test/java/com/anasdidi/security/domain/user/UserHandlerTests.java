@@ -126,4 +126,41 @@ public class UserHandlerTests {
     List<String> errorList = (List<String>) responseBody.get("errors");
     Assertions.assertEquals(true, !errorList.isEmpty());
   }
+
+  @Test
+  public void testUserUpdateSuccess() {
+    Map<String, Object> userMap = generateUserMap();
+    String suffix = "testUserUpdateSuccess";
+    String fullName = "fullName" + suffix;
+    String email = "email" + suffix;
+
+    ResponseSpec response = userService.create(UserDTO.fromMap(userMap)).map(id -> {
+      userMap.put("fullName", fullName);
+      userMap.put("email", email);
+
+      return webTestClient.put().uri("/user/" + id).accept(MediaType.APPLICATION_JSON)
+          .contentType(MediaType.APPLICATION_JSON).bodyValue(userMap).exchange();
+    }).block();
+    response.expectStatus().isEqualTo(HttpStatus.OK);
+
+    @SuppressWarnings("unchecked")
+    Map<String, Object> responseBody =
+        response.expectBody(Map.class).returnResult().getResponseBody();
+    Assertions.assertNotNull(responseBody.get("id"));
+
+
+    String userId = (String) responseBody.get("id");
+    Optional<UserVO> result = userRepository.findById(userId);
+    if (result.isPresent()) {
+      UserVO vo = result.get();
+      Assertions.assertEquals(userMap.get("username"), vo.getUsername());
+      Assertions.assertEquals(userMap.get("password"), vo.getPassword());
+      Assertions.assertEquals(userMap.get("fullName"), vo.getFullName());
+      Assertions.assertEquals(userMap.get("email"), vo.getEmail());
+      Assertions.assertNotNull(vo.getVersion());
+      Assertions.assertNotNull(vo.getLastModifiedDate());
+    } else {
+      Assertions.fail("User not found!");
+    }
+  }
 }
