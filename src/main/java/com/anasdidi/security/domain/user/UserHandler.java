@@ -47,4 +47,26 @@ class UserHandler extends BaseHandler {
 
     return sendResponse(subscriber, HttpStatus.CREATED, request);
   }
+
+  Mono<ServerResponse> update(ServerRequest request) {
+    final String TAG = "update";
+    String userId = request.pathVariable("userId");
+
+    if (logger.isDebugEnabled()) {
+      logger.debug("[{}] request={}", TAG, request);
+      logger.debug("[{}] pathVariable :: userId={}", TAG, userId);
+    }
+
+    @SuppressWarnings("warnings")
+    Mono<Map<String, Object>> subscriber = request.bodyToMono(Map.class).map(map -> {
+      map.put("id", userId);
+      return map;
+    }).map(map -> UserDTO.fromMap(map)).flatMap(dto -> userService.update(dto)).map(id -> {
+      Map<String, Object> responseBody = new HashMap<>();
+      responseBody.put("id", id);
+      return responseBody;
+    });
+
+    return sendResponse(subscriber, HttpStatus.OK, request);
+  }
 }

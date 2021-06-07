@@ -47,4 +47,9 @@ class UserServiceBean implements UserService {
               message.getErrorMessage(UserConstants.ERROR_CREATE), e.getMessage()));
         }).map(vo -> vo.getId());
   }
+
+  @Override
+  public Mono<String> update(UserDTO dto) {
+    return Mono.just(dto.id);
+  }
 }
