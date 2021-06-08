@@ -30,6 +30,9 @@ class UserValidator extends BaseValidator<UserDTO> {
       case CREATE:
         errorList = validateCreate(dto);
         break;
+      case UPDATE:
+        errorList = validateUpdate(dto);
+        break;
     }
 
     if (!errorList.isEmpty()) {
@@ -54,6 +57,27 @@ class UserValidator extends BaseValidator<UserDTO> {
 
     if (password == null || password.isBlank()) {
       errorList.add("Password is mandatory field!");
+    }
+
+    if (fullName == null || fullName.isBlank()) {
+      errorList.add("Full Name is mandatory field!");
+    }
+
+    if (email == null || email.isBlank()) {
+      errorList.add("Email is mandatory field!");
+    }
+
+    return errorList;
+  }
+
+  private List<String> validateUpdate(UserDTO dto) {
+    List<String> errorList = new ArrayList<>();
+    String id = dto.id;
+    String fullName = dto.fullName;
+    String email = dto.email;
+
+    if (id == null || id.isBlank()) {
+      errorList.add("Id is mandatory field!");
     }
 
     if (fullName == null || fullName.isBlank()) {

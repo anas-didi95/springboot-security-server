@@ -14,6 +14,6 @@ public abstract class BaseValidator<T> {
   protected abstract Mono<T> validate(Action action, T dto);
 
   public enum Action {
-    CREATE
+    CREATE, UPDATE
   }
 }
