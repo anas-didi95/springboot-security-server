@@ -46,47 +46,34 @@ class UserValidator extends BaseValidator<UserDTO> {
 
   private List<String> validateCreate(UserDTO dto) {
     List<String> errorList = new ArrayList<>();
+
     String username = dto.username;
+    isBlank(errorList, username, "Username is mandatory field!");
+
     String password = dto.password;
+    isBlank(errorList, password, "Password is mandatory field!");
+
+
     String fullName = dto.fullName;
+    isBlank(errorList, fullName, "Full Name is mandatory field!");
+
     String email = dto.email;
-
-    if (username == null || username.isBlank()) {
-      errorList.add("Username is mandatory field!");
-    }
-
-    if (password == null || password.isBlank()) {
-      errorList.add("Password is mandatory field!");
-    }
-
-    if (fullName == null || fullName.isBlank()) {
-      errorList.add("Full Name is mandatory field!");
-    }
-
-    if (email == null || email.isBlank()) {
-      errorList.add("Email is mandatory field!");
-    }
+    isBlank(errorList, email, "Email is mandatory field!");
 
     return errorList;
   }
 
   private List<String> validateUpdate(UserDTO dto) {
     List<String> errorList = new ArrayList<>();
+
     String id = dto.id;
+    isBlank(errorList, id, "Id is mandatory field!");
+
     String fullName = dto.fullName;
+    isBlank(errorList, fullName, "Full Name is mandatory field!");
+
     String email = dto.email;
-
-    if (id == null || id.isBlank()) {
-      errorList.add("Id is mandatory field!");
-    }
-
-    if (fullName == null || fullName.isBlank()) {
-      errorList.add("Full Name is mandatory field!");
-    }
-
-    if (email == null || email.isBlank()) {
-      errorList.add("Email is mandatory field!");
-    }
+    isBlank(errorList, email, "Email is mandatory field!");
 
     return errorList;
   }
