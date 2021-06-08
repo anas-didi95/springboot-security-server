@@ -63,6 +63,7 @@ class UserHandler extends BaseHandler {
           return map;
         })//
         .map(map -> UserDTO.fromMap(map))//
+        .flatMap(dto -> userValidator.validate(UserValidator.Action.UPDATE, dto))//
         .flatMap(dto -> userService.update(dto)).map(id -> {
           Map<String, Object> responseBody = new HashMap<>();
           responseBody.put("id", id);
