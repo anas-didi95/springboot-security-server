@@ -57,8 +57,7 @@ class UserHandler extends BaseHandler {
       logger.debug("[{}] pathVariable :: userId={}", TAG, userId);
     }
 
-    @SuppressWarnings("unchecked")
-    Mono<Map<String, Object>> subscriber = request.bodyToMono(Map.class)//
+    Mono<Map<String, Object>> subscriber = getRequestData(request, "{fullName,email}")//
         .map(map -> {
           map.put("id", userId);
           return map;
