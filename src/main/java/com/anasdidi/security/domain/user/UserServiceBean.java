@@ -63,9 +63,11 @@ class UserServiceBean implements UserService {
       if (result.isPresent()) {
         return Mono.just(result.get());
       } else {
-        logger.error("[{}:{}] User not found! {}", TAG, dto.sessionId, dto);
-        return Mono.error(new ApplicationException("E102", "User not found!",
-            "Failed to find user with id=" + dto.id));
+        logger.error("[{}:{}] Failed to find user with id: {}", TAG, dto.sessionId, dto.id);
+        logger.error("[{}:{}] {}", TAG, dto.sessionId, dto);
+        return Mono.error(new ApplicationException(UserConstants.ERROR_NOT_FOUND,
+            message.getErrorMessage(UserConstants.ERROR_NOT_FOUND),
+            "Failed to find user with id: " + dto.id));
       }
     });
 
