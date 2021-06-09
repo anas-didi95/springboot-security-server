@@ -59,7 +59,14 @@ class UserServiceBean implements UserService {
 
     Mono<UserVO> db = Mono.defer(() -> {
       Optional<UserVO> result = userRepository.findById(dto.id);
-      return Mono.just(result.get());
+
+      if (result.isPresent()) {
+        return Mono.just(result.get());
+      } else {
+        logger.error("[{}:{}] User not found! {}", TAG, dto.sessionId, dto);
+        return Mono.error(new ApplicationException("E102", "User not found!",
+            "Failed to find user with id=" + dto.id));
+      }
     });
 
     return Mono.zip(db, Mono.just(dto.toVO()), (dbVO, reqVO) -> {
