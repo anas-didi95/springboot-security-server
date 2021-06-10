@@ -61,7 +61,17 @@ class UserServiceBean implements UserService {
       Optional<UserVO> result = userRepository.findById(dto.id);
 
       if (result.isPresent()) {
-        return Mono.just(result.get());
+        UserVO vo = result.get();
+        if (vo.getVersion() == dto.version) {
+          return Mono.just(vo);
+        } else {
+          logger.error("[{}:{}] Requested user version not matched with current version: {}", TAG,
+              dto.sessionId, vo.getVersion());
+          logger.error("[{}:{}] {}", TAG, dto.sessionId, dto);
+          return Mono.error(new ApplicationException(UserConstants.ERROR_VERSION_NOT_MATCHED,
+              message.getErrorMessage(UserConstants.ERROR_VERSION_NOT_MATCHED),
+              "Requested user version not matched with current version: " + vo.getVersion()));
+        }
       } else {
         logger.error("[{}:{}] Failed to find user with id: {}", TAG, dto.sessionId, dto.id);
         logger.error("[{}:{}] {}", TAG, dto.sessionId, dto);

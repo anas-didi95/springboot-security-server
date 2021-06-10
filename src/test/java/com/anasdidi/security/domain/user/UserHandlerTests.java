@@ -140,6 +140,7 @@ public class UserHandlerTests {
     ResponseSpec response = userService.create(UserDTO.fromMap(userMap)).map(id -> {
       userMap.put("fullName", fullName);
       userMap.put("email", email);
+      userMap.put("version", 0);
 
       return webTestClient.put().uri("/user/" + id).accept(MediaType.APPLICATION_JSON)
           .contentType(MediaType.APPLICATION_JSON).bodyValue(userMap).exchange();
@@ -209,6 +210,7 @@ public class UserHandlerTests {
     Map<String, Object> userMap = generateUserMap();
 
     ResponseSpec response = userService.create(UserDTO.fromMap(userMap)).map(id -> {
+      userMap.put("version", 0);
       return webTestClient.put().uri("/user/incorrectId").accept(MediaType.APPLICATION_JSON)
           .contentType(MediaType.APPLICATION_JSON).bodyValue(userMap).exchange();
     }).block();
@@ -219,6 +221,29 @@ public class UserHandlerTests {
         response.expectBody(Map.class).returnResult().getResponseBody();
     Assertions.assertEquals("E102", responseBody.get("code"));
     Assertions.assertEquals("User not found!", responseBody.get("message"));
+
+    @SuppressWarnings("unchecked")
+    List<String> errorList = (List<String>) responseBody.get("errors");
+    Assertions.assertTrue(!errorList.isEmpty());
+  }
+
+  @Test
+  public void testUserUpdateVersionNotMatchedError() {
+    Map<String, Object> userMap = generateUserMap();
+
+    ResponseSpec response = userService.create(UserDTO.fromMap(userMap)).map(id -> {
+      userMap.put("version", -1);
+
+      return webTestClient.put().uri("/user/" + id).accept(MediaType.APPLICATION_JSON)
+          .contentType(MediaType.APPLICATION_JSON).bodyValue(userMap).exchange();
+    }).block();
+    response.expectStatus().isEqualTo(HttpStatus.BAD_REQUEST);
+
+    @SuppressWarnings("unchecked")
+    Map<String, Object> responseBody =
+        response.expectBody(Map.class).returnResult().getResponseBody();
+    Assertions.assertEquals("E103", responseBody.get("code"));
+    Assertions.assertEquals("User version not matched!", responseBody.get("message"));
 
     @SuppressWarnings("unchecked")
     List<String> errorList = (List<String>) responseBody.get("errors");

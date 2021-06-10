@@ -75,6 +75,9 @@ class UserValidator extends BaseValidator<UserDTO> {
     String email = dto.email;
     isBlank(errorList, email, "Email is mandatory field!");
 
+    Integer version = dto.version;
+    isBlank(errorList, version, "Version is mandatory field!");
+
     return errorList;
   }
 }
