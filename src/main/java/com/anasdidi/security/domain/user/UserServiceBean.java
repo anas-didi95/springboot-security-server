@@ -68,7 +68,8 @@ class UserServiceBean implements UserService {
           logger.error("[{}:{}] Requested user version not matched with current version: {}", TAG,
               dto.sessionId, vo.getVersion());
           logger.error("[{}:{}] {}", TAG, dto.sessionId, dto);
-          return Mono.error(new ApplicationException("E103", "User version not matched!",
+          return Mono.error(new ApplicationException(UserConstants.ERROR_VERSION_NOT_MATCHED,
+              message.getErrorMessage(UserConstants.ERROR_VERSION_NOT_MATCHED),
               "Requested user version not matched with current version: " + vo.getVersion()));
         }
       } else {

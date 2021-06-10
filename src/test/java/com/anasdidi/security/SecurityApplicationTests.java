@@ -22,5 +22,6 @@ public class SecurityApplicationTests {
     Assertions.assertEquals("Validation error!", message.getMessage("message.error.E002"));
     Assertions.assertEquals("User creation failed!", message.getMessage("message.error.E101"));
     Assertions.assertEquals("User not found!", message.getMessage("message.error.E102"));
+    Assertions.assertEquals("User version not matched!", message.getMessage("message.error.E103"));
   }
 }
