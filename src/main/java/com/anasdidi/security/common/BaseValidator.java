@@ -22,5 +22,11 @@ public abstract class BaseValidator<T> {
     }
   }
 
+  protected void isBlank(List<String> errorList, Object value, String errorMessage) {
+    if (value == null) {
+      errorList.add(errorMessage);
+    }
+  }
+
   protected abstract Mono<T> validate(Action action, T dto);
 }

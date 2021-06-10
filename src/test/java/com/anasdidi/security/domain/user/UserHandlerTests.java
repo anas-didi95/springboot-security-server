@@ -140,6 +140,7 @@ public class UserHandlerTests {
     ResponseSpec response = userService.create(UserDTO.fromMap(userMap)).map(id -> {
       userMap.put("fullName", fullName);
       userMap.put("email", email);
+      userMap.put("version", 0);
 
       return webTestClient.put().uri("/user/" + id).accept(MediaType.APPLICATION_JSON)
           .contentType(MediaType.APPLICATION_JSON).bodyValue(userMap).exchange();
@@ -209,6 +210,7 @@ public class UserHandlerTests {
     Map<String, Object> userMap = generateUserMap();
 
     ResponseSpec response = userService.create(UserDTO.fromMap(userMap)).map(id -> {
+      userMap.put("version", 0);
       return webTestClient.put().uri("/user/incorrectId").accept(MediaType.APPLICATION_JSON)
           .contentType(MediaType.APPLICATION_JSON).bodyValue(userMap).exchange();
     }).block();
