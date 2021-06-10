@@ -22,5 +22,6 @@ Content-Type: application/json
 
 {
    "fullName": "fullName2",
-   "email": "email2@domain.com"
+   "email": "email2@domain.com",
+   "version": 0
 }
