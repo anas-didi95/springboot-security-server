@@ -25,3 +25,8 @@ Content-Type: application/json
    "email": "email2@domain.com",
    "version": 0
 }
+
+###
+
+// @name delete
+DELETE {{baseUrl}}/{{userId}}/1
