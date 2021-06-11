@@ -249,4 +249,24 @@ public class UserHandlerTests {
     List<String> errorList = (List<String>) responseBody.get("errors");
     Assertions.assertTrue(!errorList.isEmpty());
   }
+
+  @Test
+  public void testUserDeleteSuccess() {
+    Map<String, Object> userMap = generateUserMap();
+
+    ResponseSpec response = userService.create(UserDTO.fromMap(userMap)).map(id -> {
+      return webTestClient.delete().uri("/user/" + id + "/0").accept(MediaType.APPLICATION_JSON)
+          .exchange();
+    }).block();
+    response.expectStatus().isEqualTo(HttpStatus.OK);
+
+    @SuppressWarnings("unchecked")
+    Map<String, Object> responseBody =
+        response.expectBody(Map.class).returnResult().getResponseBody();
+    Assertions.assertNotNull(responseBody.get("id"));
+
+    String userId = (String) responseBody.get("id");
+    Optional<UserVO> userVO = userRepository.findById(userId);
+    Assertions.assertTrue(userVO.isEmpty());
+  }
 }
