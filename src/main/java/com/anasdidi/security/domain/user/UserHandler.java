@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import com.anasdidi.security.common.ApplicationMessage;
 import com.anasdidi.security.common.BaseHandler;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -16,7 +14,6 @@ import reactor.core.publisher.Mono;
 @Component
 class UserHandler extends BaseHandler {
 
-  private static final Logger logger = LogManager.getLogger(UserHandler.class);
   private final UserValidator userValidator;
   private final UserService userService;
 
@@ -28,18 +25,11 @@ class UserHandler extends BaseHandler {
   }
 
   Mono<ServerResponse> create(ServerRequest request) {
-    final String TAG = "create";
-
-    if (logger.isDebugEnabled()) {
-      logger.debug("[{}] request={}", TAG, request);
-    }
-
     Mono<Map<String, Object>> subscriber =
-        getRequestData(request, "{username,password,fullName,email}")//
-            .map(map -> UserDTO.fromMap(map))//
-            .flatMap(dto -> userValidator.validate(UserValidator.Action.CREATE, dto))//
-            .flatMap(dto -> userService.create(dto))//
-            .map(id -> {
+        getRequestData(request, "{username,password,fullName,email}")
+            .map(map -> UserDTO.fromMap(map))
+            .flatMap(dto -> userValidator.validate(UserValidator.Action.CREATE, dto))
+            .flatMap(dto -> userService.create(dto)).map(id -> {
               Map<String, Object> map = new HashMap<>();
               map.put("id", id);
               return map;
@@ -49,21 +39,13 @@ class UserHandler extends BaseHandler {
   }
 
   Mono<ServerResponse> update(ServerRequest request) {
-    final String TAG = "update";
     String userId = request.pathVariable("userId");
 
-    if (logger.isDebugEnabled()) {
-      logger.debug("[{}] request={}", TAG, request);
-      logger.debug("[{}] pathVariable :: userId={}", TAG, userId);
-    }
-
-    Mono<Map<String, Object>> subscriber = getRequestData(request, "{fullName,email}")//
-        .map(map -> {
-          map.put("id", userId);
-          return map;
-        })//
-        .map(map -> UserDTO.fromMap(map))//
-        .flatMap(dto -> userValidator.validate(UserValidator.Action.UPDATE, dto))//
+    Mono<Map<String, Object>> subscriber = getRequestData(request, "{fullName,email}").map(map -> {
+      map.put("id", userId);
+      return map;
+    }).map(map -> UserDTO.fromMap(map))
+        .flatMap(dto -> userValidator.validate(UserValidator.Action.UPDATE, dto))
         .flatMap(dto -> userService.update(dto)).map(id -> {
           Map<String, Object> responseBody = new HashMap<>();
           responseBody.put("id", id);
@@ -74,7 +56,6 @@ class UserHandler extends BaseHandler {
   }
 
   public Mono<ServerResponse> delete(ServerRequest request) {
-    final String TAG = "delete";
     String userId = request.pathVariable("userId");
     String userVersion = request.pathVariable("userVersion");
 

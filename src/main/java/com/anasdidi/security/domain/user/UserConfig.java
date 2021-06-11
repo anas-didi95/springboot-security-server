@@ -13,7 +13,7 @@ class UserConfig {
 
   @Bean
   RouterFunction<ServerResponse> userRouter(UserHandler userHandler) {
-    return RouterFunctions//
+    return RouterFunctions
         .route(RequestPredicates.POST("/user")
             .and(RequestPredicates.accept(MediaType.APPLICATION_JSON))
             .and(RequestPredicates.contentType(MediaType.APPLICATION_JSON)), userHandler::create)

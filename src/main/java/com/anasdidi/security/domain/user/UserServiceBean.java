@@ -32,21 +32,18 @@ class UserServiceBean implements UserService {
       logger.debug("[{}:{}] {}", TAG, dto.sessionId, dto);
     }
 
-    return Mono.just(dto.toVO())//
-        .map(vo -> {
-          String id = UUID.randomUUID().toString().replaceAll("-", "").toUpperCase();
-          vo.setId(id);
-          vo.setLastModifiedDate(new Date());
-          vo.setVersion(0);
-          return vo;
-        })//
-        .map(vo -> userRepository.save(vo))//
-        .doOnError(e -> {
-          logger.error("[{}:{}] {}", TAG, dto.sessionId, e.getMessage());
-          logger.error("[{}:{}] {}", TAG, dto.sessionId, dto);
-          e.addSuppressed(new ApplicationException(UserConstants.ERROR_CREATE,
-              message.getErrorMessage(UserConstants.ERROR_CREATE), e.getMessage()));
-        }).map(vo -> vo.getId());
+    return Mono.just(dto.toVO()).map(vo -> {
+      String id = UUID.randomUUID().toString().replaceAll("-", "").toUpperCase();
+      vo.setId(id);
+      vo.setLastModifiedDate(new Date());
+      vo.setVersion(0);
+      return vo;
+    }).map(vo -> userRepository.save(vo)).doOnError(e -> {
+      logger.error("[{}:{}] {}", TAG, dto.sessionId, e.getMessage());
+      logger.error("[{}:{}] {}", TAG, dto.sessionId, dto);
+      e.addSuppressed(new ApplicationException(UserConstants.ERROR_CREATE,
+          message.getErrorMessage(UserConstants.ERROR_CREATE), e.getMessage()));
+    }).map(vo -> vo.getId());
   }
 
   @Override
