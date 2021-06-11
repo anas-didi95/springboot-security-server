@@ -58,11 +58,13 @@ public abstract class BaseHandler {
 
   @SuppressWarnings({"unchecked", "rawtypes"})
   protected Mono<Map<String, Object>> getRequestData(ServerRequest request, String json) {
-    Mono<Map> requestBody = request.bodyToMono(Map.class).defaultIfEmpty(new HashMap<>());
+    Mono<Map> requestBody = request.bodyToMono(Map.class);
     if (json != null && !json.isBlank()) {
       requestBody = requestBody.switchIfEmpty(
           Mono.defer(() -> Mono.error(new ApplicationException(ERROR_REQUEST_BODY_EMPTY,
               message.getErrorMessage(ERROR_REQUEST_BODY_EMPTY), "Required json: " + json))));
+    } else {
+      requestBody = requestBody.defaultIfEmpty(new HashMap<>());
     }
 
     return Mono.zip(getSessionData(request), requestBody, (sessionMap, requestMap) -> {
