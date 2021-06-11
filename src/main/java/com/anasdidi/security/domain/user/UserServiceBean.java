@@ -89,4 +89,21 @@ class UserServiceBean implements UserService {
       return dbVO;
     }).map(vo -> userRepository.save(vo)).map(vo -> vo.getId());
   }
+
+  @Override
+  public Mono<String> delete(UserDTO dto) {
+    final String TAG = "delete";
+
+    if (logger.isDebugEnabled()) {
+      logger.debug("[{}:{}] {}", TAG, dto.sessionId, dto);
+    }
+
+    return Mono.defer(() -> {
+      Optional<UserVO> userVO = userRepository.findById(dto.id);
+      return Mono.just(userVO.get());
+    }).map(vo -> {
+      userRepository.delete(vo);
+      return vo;
+    }).map(vo -> vo.getId());
+  }
 }

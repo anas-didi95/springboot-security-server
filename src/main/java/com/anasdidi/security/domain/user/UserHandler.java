@@ -72,4 +72,22 @@ class UserHandler extends BaseHandler {
 
     return sendResponse(subscriber, HttpStatus.OK, request);
   }
+
+  public Mono<ServerResponse> delete(ServerRequest request) {
+    final String TAG = "delete";
+    String userId = request.pathVariable("userId");
+    String userVersion = request.pathVariable("userVersion");
+
+    Mono<Map<String, Object>> subscriber = getRequestData(request, null).map(map -> {
+      map.put("id", userId);
+      map.put("version", Integer.parseInt(userVersion));
+      return map;
+    }).map(map -> UserDTO.fromMap(map)).flatMap(dto -> userService.delete(dto)).map(id -> {
+      Map<String, Object> responseBody = new HashMap<>();
+      responseBody.put("id", id);
+      return responseBody;
+    });
+
+    return sendResponse(subscriber, HttpStatus.OK, request);
+  }
 }
