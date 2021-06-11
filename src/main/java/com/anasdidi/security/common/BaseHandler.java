@@ -63,6 +63,8 @@ public abstract class BaseHandler {
       requestBody = requestBody.switchIfEmpty(
           Mono.defer(() -> Mono.error(new ApplicationException(ERROR_REQUEST_BODY_EMPTY,
               message.getErrorMessage(ERROR_REQUEST_BODY_EMPTY), "Required json: " + json))));
+    } else {
+      requestBody = requestBody.defaultIfEmpty(new HashMap<>());
     }
 
     return Mono.zip(getSessionData(request), requestBody, (sessionMap, requestMap) -> {
