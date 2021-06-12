@@ -269,4 +269,25 @@ public class UserHandlerTests {
     Optional<UserVO> userVO = userRepository.findById(userId);
     Assertions.assertTrue(userVO.isEmpty());
   }
+
+  @Test
+  public void testUserDeleteUserNotFoundError() {
+    Map<String, Object> userMap = generateUserMap();
+
+    ResponseSpec response = userService.create(UserDTO.fromMap(userMap)).map(id -> {
+      return webTestClient.delete().uri("/user/" + System.currentTimeMillis() + "/0")
+          .accept(MediaType.APPLICATION_JSON).exchange();
+    }).block();
+    response.expectStatus().isEqualTo(HttpStatus.BAD_REQUEST);
+
+    @SuppressWarnings("unchecked")
+    Map<String, Object> responseBody =
+        response.expectBody(Map.class).returnResult().getResponseBody();
+    Assertions.assertEquals("E102", responseBody.get("code"));
+    Assertions.assertEquals("User not found!", responseBody.get("message"));
+
+    @SuppressWarnings("unchecked")
+    List<String> errorList = (List<String>) responseBody.get("errors");
+    Assertions.assertTrue(!errorList.isEmpty());
+  }
 }
