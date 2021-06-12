@@ -71,7 +71,7 @@ class UserServiceBean implements UserService {
         }
       } else {
         logger.error("[{}:{}] {}", TAG, dto.sessionId, dto);
-        return Mono.error(UserException.getUserNotFound(message, dto.id));
+        return Mono.error(UserException.getUserNotFound(message, dto));
       }
     });
 
@@ -99,7 +99,7 @@ class UserServiceBean implements UserService {
         return Mono.just(userVO.get());
       } else {
         logger.error("[{}:{}] {}", TAG, dto.sessionId, dto);
-        return Mono.error(UserException.getUserNotFound(message, dto.id));
+        return Mono.error(UserException.getUserNotFound(message, dto));
       }
     }).map(vo -> {
       userRepository.delete(vo);
