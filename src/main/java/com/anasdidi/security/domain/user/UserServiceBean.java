@@ -70,11 +70,8 @@ class UserServiceBean implements UserService {
               "Requested user version not matched with current version: " + vo.getVersion()));
         }
       } else {
-        logger.error("[{}:{}] Failed to find user with id: {}", TAG, dto.sessionId, dto.id);
         logger.error("[{}:{}] {}", TAG, dto.sessionId, dto);
-        return Mono.error(new ApplicationException(UserConstants.ERROR_NOT_FOUND,
-            message.getErrorMessage(UserConstants.ERROR_NOT_FOUND),
-            "Failed to find user with id: " + dto.id));
+        return Mono.error(UserException.getUserNotFound(message, dto.id));
       }
     });
 
@@ -102,9 +99,7 @@ class UserServiceBean implements UserService {
         return Mono.just(userVO.get());
       } else {
         logger.error("[{}:{}] {}", TAG, dto.sessionId, dto);
-        return Mono.error(new ApplicationException(UserConstants.ERROR_NOT_FOUND,
-            message.getErrorMessage(UserConstants.ERROR_NOT_FOUND),
-            "Failed to find user with id: " + dto.id));
+        return Mono.error(UserException.getUserNotFound(message, dto.id));
       }
     }).map(vo -> {
       userRepository.delete(vo);
