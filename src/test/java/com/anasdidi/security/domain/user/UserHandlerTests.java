@@ -290,4 +290,25 @@ public class UserHandlerTests {
     List<String> errorList = (List<String>) responseBody.get("errors");
     Assertions.assertTrue(!errorList.isEmpty());
   }
+
+  @Test
+  public void testUserDeleteVersionNotMatchedError() {
+    Map<String, Object> userMap = generateUserMap();
+
+    ResponseSpec response = userService.create(UserDTO.fromMap(userMap)).map(id -> {
+      return webTestClient.delete().uri("/user/" + id + "/-1").accept(MediaType.APPLICATION_JSON)
+          .exchange();
+    }).block();
+    response.expectStatus().isEqualTo(HttpStatus.BAD_REQUEST);
+
+    @SuppressWarnings("unchecked")
+    Map<String, Object> responseBody =
+        response.expectBody(Map.class).returnResult().getResponseBody();
+    Assertions.assertEquals("E103", responseBody.get("code"));
+    Assertions.assertEquals("User version not matched!", responseBody.get("message"));
+
+    @SuppressWarnings("unchecked")
+    List<String> errorList = (List<String>) responseBody.get("errors");
+    Assertions.assertTrue(!errorList.isEmpty());
+  }
 }
