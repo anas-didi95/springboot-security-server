@@ -10,4 +10,10 @@ class UserException {
         message.getErrorMessage(UserConstants.ERROR_NOT_FOUND),
         "Failed to find user with id: " + dto.id);
   }
+
+  static ApplicationException getVersionNotMatched(ApplicationMessage message, UserVO vo) {
+    return new ApplicationException(UserConstants.ERROR_VERSION_NOT_MATCHED,
+        message.getErrorMessage(UserConstants.ERROR_VERSION_NOT_MATCHED),
+        "Requested user version not matched with current version: " + vo.getVersion());
+  }
 }
