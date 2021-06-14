@@ -56,11 +56,6 @@ To run your application:
 ./mvnw clean spring-boot:run
 ```
 
-To build application into native image:
-```
-./mvnw clean spring-boot:build-image -DskipTests
-```
-
 ---
 
 ## Features
