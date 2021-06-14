@@ -78,6 +78,7 @@ To build application into native image:
 * [Spring Boot Maven Plugin Reference Guide](https://docs.spring.io/spring-boot/docs/2.4.5/maven-plugin/reference/html/)
 * [Create an OCI image](https://docs.spring.io/spring-boot/docs/2.4.5/maven-plugin/reference/html/#build-image)
 * [Error Handling in Spring Webflux](https://dzone.com/articles/error-handling-in-spring-webflux)
+* [Securing Spring WebFlux Reactive APIs with JWT Auth](https://www.devglan.com/spring-security/spring-security-webflux-jwt)
 
 ---
 
