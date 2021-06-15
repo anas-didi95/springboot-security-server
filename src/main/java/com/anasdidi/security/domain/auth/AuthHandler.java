@@ -14,17 +14,23 @@ import reactor.core.publisher.Mono;
 @Component
 class AuthHandler extends BaseHandler {
 
+  private final AuthService authService;
+
   @Autowired
-  public AuthHandler(ApplicationMessage message) {
+  public AuthHandler(ApplicationMessage message, AuthService authService) {
     super(message);
+    this.authService = authService;
   }
 
   Mono<ServerResponse> login(ServerRequest request) {
-    Mono<Map<String, Object>> subscriber = request.bodyToMono(Map.class).map(map -> {
-      Map<String, Object> responseBody = new HashMap<>();
-      responseBody.put("accessToken", System.currentTimeMillis());
-      return responseBody;
-    });
+    @SuppressWarnings("unchecked")
+    Mono<Map<String, Object>> subscriber =
+        request.bodyToMono(Map.class).map(map -> AuthDTO.fromMap(map))
+            .flatMap(dto -> authService.login(dto)).map(accessToken -> {
+              Map<String, Object> responseBody = new HashMap<>();
+              responseBody.put("accessToken", accessToken);
+              return responseBody;
+            });
 
     return sendResponse(subscriber, HttpStatus.OK, request);
   }
