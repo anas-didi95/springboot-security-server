@@ -10,7 +10,7 @@ import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "users")
-class UserVO {
+public class UserVO {
 
   @Id
   @Column(name = "id", unique = true, nullable = false)
