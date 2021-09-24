@@ -1,6 +1,7 @@
 .m2/
 log/
 .env
+.vscode-server/
 
 HELP.md
 target/
