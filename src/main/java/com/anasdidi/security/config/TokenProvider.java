@@ -1,13 +1,15 @@
 package com.anasdidi.security.config;
 
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +21,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 public class TokenProvider {
 
   private final String SECRET = "secret";
+  private final String ISSUER = "https://anasdidi.dev";
   private final String ROLE_KEY = "scopes";
   private final long ACCESS_TOKEN_VALIDITY_SECONDS = 5 * 60 * 60;
 
@@ -46,8 +49,8 @@ public class TokenProvider {
     return expiration.before(new Date());
   }
 
-  public String generateToken(User user) {
-    return doGenerateToken(user.getUsername());
+  public String generateToken(UserDetails userDetails) {
+    return doGenerateToken(userDetails.getUsername(), userDetails.getAuthorities());
   }
 
   private <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
@@ -59,11 +62,11 @@ public class TokenProvider {
     return Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token).getBody();
   }
 
-  private String doGenerateToken(String subject) {
-    Claims claims = Jwts.claims().setSubject(subject);
-    claims.put(ROLE_KEY, Arrays.asList(new SimpleGrantedAuthority("ROLE_ADMIN")));
+  private String doGenerateToken(String subject, Collection<? extends GrantedAuthority> collection) {
+    Map<String, Object> claims = new HashMap<>();
+    claims.put(ROLE_KEY, collection);
 
-    return Jwts.builder().setClaims(claims).setIssuer("http://devglan.com")
+    return Jwts.builder().setClaims(claims).setSubject(subject).setIssuer(ISSUER)
         .setIssuedAt(new Date(System.currentTimeMillis()))
         .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY_SECONDS * 1000))
         .signWith(SignatureAlgorithm.HS256, SECRET).compact();

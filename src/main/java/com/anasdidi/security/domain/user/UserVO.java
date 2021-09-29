@@ -35,10 +35,11 @@ public class UserVO {
   @Column(name = "version", nullable = false)
   private Integer version;
 
-  public UserVO() {}
+  public UserVO() {
+  }
 
-  public UserVO(String id, String username, String password, String fullName, String email,
-      Date lastModifiedDate, Integer version) {
+  public UserVO(String id, String username, String password, String fullName, String email, Date lastModifiedDate,
+      Integer version) {
     this.id = id;
     this.username = username;
     this.password = password;

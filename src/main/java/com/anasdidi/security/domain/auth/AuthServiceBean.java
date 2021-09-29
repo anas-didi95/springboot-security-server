@@ -1,15 +1,19 @@
 package com.anasdidi.security.domain.auth;
 
-import java.util.Collection;
 import java.util.List;
+
+import com.anasdidi.security.config.TokenProvider;
 import com.anasdidi.security.domain.user.UserRepository;
 import com.anasdidi.security.domain.user.UserVO;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import reactor.core.publisher.Mono;
 
 @Service
@@ -17,10 +21,14 @@ class AuthServiceBean implements AuthService {
 
   private static final Logger logger = LogManager.getLogger(AuthServiceBean.class);
   private final UserRepository userRepository;
+  private final TokenProvider tokenProvider;
+  private final BCryptPasswordEncoder passwordEncoder;
 
   @Autowired
-  AuthServiceBean(UserRepository userRepository) {
+  AuthServiceBean(UserRepository userRepository, TokenProvider tokenProvider, BCryptPasswordEncoder passwordEncoder) {
     this.userRepository = userRepository;
+    this.tokenProvider = tokenProvider;
+    this.passwordEncoder = passwordEncoder;
   }
 
   @Override
@@ -40,51 +48,9 @@ class AuthServiceBean implements AuthService {
 
       if (resultList != null && !resultList.isEmpty()) {
         UserVO vo = resultList.get(0);
-        if (vo.getPassword().equals(dto.password)) {
-          String accessToken = AuthUtils.generateToken(new UserDetails() {
-
-            @Override
-            public Collection<? extends GrantedAuthority> getAuthorities() {
-              // TODO Auto-generated method stub
-              return null;
-            }
-
-            @Override
-            public String getPassword() {
-              // TODO Auto-generated method stub
-              return null;
-            }
-
-            @Override
-            public String getUsername() {
-              // TODO Auto-generated method stub
-              return null;
-            }
-
-            @Override
-            public boolean isAccountNonExpired() {
-              // TODO Auto-generated method stub
-              return false;
-            }
-
-            @Override
-            public boolean isAccountNonLocked() {
-              // TODO Auto-generated method stub
-              return false;
-            }
-
-            @Override
-            public boolean isCredentialsNonExpired() {
-              // TODO Auto-generated method stub
-              return false;
-            }
-
-            @Override
-            public boolean isEnabled() {
-              // TODO Auto-generated method stub
-              return false;
-            }
-          });
+        if (passwordEncoder.matches(dto.password, vo.getPassword())) {
+          UserDetails userDetails = User.builder().username(vo.getUsername()).build();
+          String accessToken = tokenProvider.generateToken(userDetails);
 
           if (logger.isDebugEnabled()) {
             logger.debug("[login:{}] accessToken={}", dto.sessionId, accessToken);
