@@ -31,17 +31,11 @@ class AuthServiceBean implements AuthService {
 
   @Override
   public Mono<String> login(AuthDTO dto) {
-    final String TAG = "login";
-
-    if (logger.isDebugEnabled()) {
-      logger.debug("[{}:{}] {}", TAG, dto.sessionId, dto);
-    }
-
     return Mono.defer(() -> {
       List<UserVO> resultList = userRepository.findByUsername(dto.username);
 
       if (logger.isDebugEnabled()) {
-        logger.debug("[{}:{}] resultList.size=", TAG, dto.sessionId, (resultList != null ? resultList.size() : -1));
+        logger.debug("[login:{}] resultList.size={}", dto.sessionId, (resultList != null ? resultList.size() : -1));
       }
 
       if (resultList != null && !resultList.isEmpty()) {
@@ -60,5 +54,4 @@ class AuthServiceBean implements AuthService {
       return Mono.empty();
     });
   }
-
 }
