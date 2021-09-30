@@ -9,8 +9,6 @@ import com.anasdidi.security.domain.user.UserVO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -49,8 +47,7 @@ class AuthServiceBean implements AuthService {
       if (resultList != null && !resultList.isEmpty()) {
         UserVO vo = resultList.get(0);
         if (passwordEncoder.matches(dto.password, vo.getPassword())) {
-          UserDetails userDetails = User.builder().username(vo.getUsername()).build();
-          String accessToken = tokenProvider.generateToken(userDetails);
+          String accessToken = tokenProvider.generateToken(vo);
 
           if (logger.isDebugEnabled()) {
             logger.debug("[login:{}] accessToken={}", dto.sessionId, accessToken);
