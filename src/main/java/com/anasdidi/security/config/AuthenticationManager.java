@@ -30,7 +30,7 @@ public class AuthenticationManager implements ReactiveAuthenticationManager {
     String username = null;
 
     try {
-      username = tokenProvider.getUsername(token);
+      username = tokenProvider.getSubject(token);
     } catch (Exception e) {
       username = null;
     }

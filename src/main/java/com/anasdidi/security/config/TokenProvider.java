@@ -1,6 +1,5 @@
 package com.anasdidi.security.config;
 
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -8,7 +7,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -25,7 +23,7 @@ public class TokenProvider {
   private final String PERMISSIONS_KEY = "pms";
   private final long ACCESS_TOKEN_VALIDITY_SECONDS = 5 * 60 * 60;
 
-  public String getUsername(String token) {
+  public String getSubject(String token) {
     return getClaimFromToken(token, Claims::getSubject);
   }
 
@@ -40,17 +38,17 @@ public class TokenProvider {
   }
 
   public Boolean validateToken(String token, UserDetails userDetails) {
-    final String username = getUsername(token);
+    final String username = getSubject(token);
     return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
   }
 
   public Boolean isTokenExpired(String token) {
     final Date expiration = getExpirationDate(token);
-    return expiration.before(new Date());
+    return expiration != null && expiration.before(new Date());
   }
 
-  public String generateToken(UserDetails userDetails) {
-    return doGenerateToken(userDetails.getUsername(), userDetails.getAuthorities());
+  public String generateToken(String userId, List<String> permissionList) {
+    return doGenerateToken(userId, permissionList);
   }
 
   private <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
@@ -62,9 +60,9 @@ public class TokenProvider {
     return Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token).getBody();
   }
 
-  private String doGenerateToken(String subject, Collection<? extends GrantedAuthority> collection) {
+  private String doGenerateToken(String subject, List<String> permissionList) {
     Map<String, Object> claims = new HashMap<>();
-    claims.put(PERMISSIONS_KEY, collection.stream().map(role -> role.getAuthority()).collect(Collectors.toList()));
+    claims.put(PERMISSIONS_KEY, permissionList);
 
     return Jwts.builder().setClaims(claims).setSubject(subject).setIssuer(ISSUER)
         .setIssuedAt(new Date(System.currentTimeMillis()))

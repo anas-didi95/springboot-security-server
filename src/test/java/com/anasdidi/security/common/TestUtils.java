@@ -1,10 +1,23 @@
 package com.anasdidi.security.common;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.Map;
 
+import com.anasdidi.security.config.TokenProvider;
 import com.anasdidi.security.domain.user.UserVO;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.test.web.reactive.server.WebTestClient.RequestBodySpec;
+import org.springframework.test.web.reactive.server.WebTestClient.ResponseSpec;
+
 public class TestUtils {
+
+  public static String getAccessToken(TokenProvider tokenProvider) {
+    return tokenProvider.generateToken("UNITTEST", Arrays.asList("ADMIN"));
+  }
 
   public static UserVO generateUserVO() {
     String prefix = "" + System.currentTimeMillis();
@@ -17,5 +30,24 @@ public class TestUtils {
     int version = 0;
 
     return new UserVO(id, username, password, fullName, email, lastModifiedDate, version);
+  }
+
+  public static final ResponseSpec doPost(WebTestClient webTestClient, String uri, Map<String, Object> requestBody,
+      String accessToken) {
+    RequestBodySpec request = webTestClient.post().uri(uri).accept(MediaType.APPLICATION_JSON)
+        .contentType(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+    return requestBody != null ? request.bodyValue(requestBody).exchange() : request.exchange();
+  }
+
+  public static final ResponseSpec doPut(WebTestClient webTestClient, String uri, Map<String, Object> requestBody,
+      String accessToken) {
+    RequestBodySpec request = webTestClient.put().uri(uri).accept(MediaType.APPLICATION_JSON)
+        .contentType(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+    return requestBody != null ? request.bodyValue(requestBody).exchange() : request.exchange();
+  }
+
+  public static final ResponseSpec doDelete(WebTestClient webTestClient, String uri, String accessToken) {
+    return webTestClient.delete().uri(uri).accept(MediaType.APPLICATION_JSON)
+        .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken).exchange();
   }
 }
