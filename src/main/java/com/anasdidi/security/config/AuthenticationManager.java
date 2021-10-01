@@ -27,22 +27,21 @@ public class AuthenticationManager implements ReactiveAuthenticationManager {
   @Override
   public Mono<Authentication> authenticate(Authentication authentication) {
     String token = authentication.getCredentials().toString();
-    String username = null;
+    String userId = null;
 
     try {
-      username = tokenProvider.getSubject(token);
+      userId = tokenProvider.getUserId(token);
     } catch (Exception e) {
-      username = null;
+      userId = null;
     }
 
-    if (username != null && !tokenProvider.isTokenExpired(token)) {
+    if (tokenProvider.validateToken(token)) {
       List<SimpleGrantedAuthority> permissionList = tokenProvider.getPermissionList(token);
-      UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(username, username,
-          permissionList);
-      SecurityContextHolder.getContext().setAuthentication(new AuthenticatedUser(username, permissionList));
+      UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userId, token, permissionList);
+      SecurityContextHolder.getContext().setAuthentication(new AuthenticatedUser(userId, permissionList));
       return Mono.just(auth);
+    } else {
+      return Mono.empty();
     }
-
-    return Mono.empty();
   }
 }

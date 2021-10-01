@@ -42,14 +42,16 @@ public class SecurityContextRepository implements ServerSecurityContextRepositor
     if (StringUtils.hasText(authHeader) && authHeader.startsWith(TOKEN_PREFIX)) {
       authToken = authHeader.replace(TOKEN_PREFIX, "").trim();
     } else {
-      logger.warn("[save] Could not find token, will ignore the header");
+      if (logger.isDebugEnabled()) {
+        logger.debug("[save] Could not find token, will ignore the header");
+      }
     }
 
     if (StringUtils.hasText(authToken)) {
       Authentication authentication = new UsernamePasswordAuthenticationToken(authToken, authToken);
       return authenticationManager.authenticate(authentication).map(auth -> new SecurityContextImpl(auth));
+    } else {
+      return Mono.empty();
     }
-
-    return Mono.empty();
   }
 }

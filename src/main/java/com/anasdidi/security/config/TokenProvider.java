@@ -8,7 +8,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
@@ -23,12 +22,8 @@ public class TokenProvider {
   private final String PERMISSIONS_KEY = "pms";
   private final long ACCESS_TOKEN_VALIDITY_SECONDS = 5 * 60 * 60;
 
-  public String getSubject(String token) {
+  public String getUserId(String token) {
     return getClaimFromToken(token, Claims::getSubject);
-  }
-
-  public Date getExpirationDate(String token) {
-    return getClaimFromToken(token, Claims::getExpiration);
   }
 
   @SuppressWarnings("unchecked")
@@ -37,13 +32,13 @@ public class TokenProvider {
     return roleList.stream().map(role -> new SimpleGrantedAuthority(role)).collect(Collectors.toList());
   }
 
-  public Boolean validateToken(String token, UserDetails userDetails) {
-    final String username = getSubject(token);
-    return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+  public Boolean validateToken(String token) {
+    final String userId = getUserId(token);
+    return (userId != null && !isTokenExpired(token));
   }
 
-  public Boolean isTokenExpired(String token) {
-    final Date expiration = getExpirationDate(token);
+  private Boolean isTokenExpired(String token) {
+    final Date expiration = getClaimFromToken(token, Claims::getExpiration);
     return expiration != null && expiration.before(new Date());
   }
 

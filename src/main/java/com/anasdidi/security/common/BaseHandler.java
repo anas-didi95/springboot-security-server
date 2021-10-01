@@ -57,7 +57,7 @@ public abstract class BaseHandler {
   }
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  protected Mono<Map<String, Object>> getRequestData(ServerRequest request, String json) {
+  protected Mono<Map<String, Object>> getRequestBody(ServerRequest request, String json) {
     Mono<Map> requestBody = request.bodyToMono(Map.class);
     if (json != null && !json.isBlank()) {
       requestBody = requestBody
