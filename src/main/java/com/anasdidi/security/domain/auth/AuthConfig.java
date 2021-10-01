@@ -13,8 +13,10 @@ class AuthConfig {
 
   @Bean
   RouterFunction<ServerResponse> authRouter(AuthHandler authHandler) {
-    return RouterFunctions.route(RequestPredicates.POST("/auth/login")
-        .and(RequestPredicates.accept(MediaType.APPLICATION_JSON))
-        .and(RequestPredicates.contentType(MediaType.APPLICATION_JSON)), authHandler::login);
+    return RouterFunctions
+        .route(RequestPredicates.POST("/auth/login").and(RequestPredicates.accept(MediaType.APPLICATION_JSON))
+            .and(RequestPredicates.contentType(MediaType.APPLICATION_JSON)), authHandler::login)
+        .andRoute(RequestPredicates.GET("/auth/check").and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
+            authHandler::check);
   }
 }

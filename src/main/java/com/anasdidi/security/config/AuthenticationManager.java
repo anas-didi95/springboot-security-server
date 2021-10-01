@@ -36,9 +36,10 @@ public class AuthenticationManager implements ReactiveAuthenticationManager {
     }
 
     if (username != null && !tokenProvider.isTokenExpired(token)) {
-      List<SimpleGrantedAuthority> roleList = tokenProvider.getRoleList(token);
-      UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(username, username, roleList);
-      SecurityContextHolder.getContext().setAuthentication(new AuthenticatedUser(username, roleList));
+      List<SimpleGrantedAuthority> permissionList = tokenProvider.getPermissionList(token);
+      UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(username, username,
+          permissionList);
+      SecurityContextHolder.getContext().setAuthentication(new AuthenticatedUser(username, permissionList));
       return Mono.just(auth);
     }
 

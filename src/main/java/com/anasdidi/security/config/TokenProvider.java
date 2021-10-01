@@ -22,7 +22,7 @@ public class TokenProvider {
 
   private final String SECRET = "secret";
   private final String ISSUER = "https://anasdidi.dev";
-  private final String ROLE_KEY = "scopes";
+  private final String PERMISSIONS_KEY = "pms";
   private final long ACCESS_TOKEN_VALIDITY_SECONDS = 5 * 60 * 60;
 
   public String getUsername(String token) {
@@ -33,9 +33,9 @@ public class TokenProvider {
     return getClaimFromToken(token, Claims::getExpiration);
   }
 
-  public List<SimpleGrantedAuthority> getRoleList(String token) {
-    @SuppressWarnings("unchecked")
-    List<String> roleList = (List<String>) getClaimFromToken(token, (claims) -> claims.get(ROLE_KEY));
+  @SuppressWarnings("unchecked")
+  public List<SimpleGrantedAuthority> getPermissionList(String token) {
+    List<String> roleList = (List<String>) getClaimFromToken(token, (claims) -> claims.get(PERMISSIONS_KEY));
     return roleList.stream().map(role -> new SimpleGrantedAuthority(role)).collect(Collectors.toList());
   }
 
@@ -64,7 +64,7 @@ public class TokenProvider {
 
   private String doGenerateToken(String subject, Collection<? extends GrantedAuthority> collection) {
     Map<String, Object> claims = new HashMap<>();
-    claims.put(ROLE_KEY, collection);
+    claims.put(PERMISSIONS_KEY, collection.stream().map(role -> role.getAuthority()).collect(Collectors.toList()));
 
     return Jwts.builder().setClaims(claims).setSubject(subject).setIssuer(ISSUER)
         .setIssuedAt(new Date(System.currentTimeMillis()))

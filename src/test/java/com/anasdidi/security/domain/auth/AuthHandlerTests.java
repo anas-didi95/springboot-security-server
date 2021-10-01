@@ -37,6 +37,7 @@ public class AuthHandlerTests {
     this.passwordEncoder = passwordEncoder;
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void testAuthLoginSuccess() {
     UserVO userVO = TestUtils.generateUserVO();
@@ -51,9 +52,12 @@ public class AuthHandlerTests {
     }).map(requestBody -> webTestClient.post().uri("/auth/login").accept(MediaType.APPLICATION_JSON)
         .contentType(MediaType.APPLICATION_JSON).bodyValue(requestBody).exchange()).block();
     response.expectStatus().isEqualTo(HttpStatus.OK);
-
-    @SuppressWarnings("unchecked")
     Map<String, Object> responseBody = response.expectBody(Map.class).returnResult().getResponseBody();
     Assertions.assertNotNull(responseBody.get("accessToken"));
+
+    String accessToken = (String) responseBody.get("accessToken");
+    response = webTestClient.get().uri("/auth/check").accept(MediaType.APPLICATION_JSON)
+        .header("Authorization", "Bearer " + accessToken).exchange();
+    response.expectStatus().isEqualTo(HttpStatus.OK);
   }
 }

@@ -32,4 +32,15 @@ class AuthHandler extends BaseHandler {
 
     return sendResponse(subscriber, HttpStatus.OK, request);
   }
+
+  Mono<ServerResponse> check(ServerRequest request) {
+    // Mono<Map<String, Object>> subscriber = getRequestData(request,
+    // null).map(requestBody -> {
+    // Map<String, Object> responseBody = new HashMap<>();
+    // return responseBody;
+    // });
+    Mono<Map<String, Object>> subscriber = Mono.just(new HashMap<>());
+
+    return sendResponse(subscriber, HttpStatus.OK, request);
+  }
 }
