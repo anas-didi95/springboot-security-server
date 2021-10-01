@@ -12,12 +12,14 @@ import javax.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table(name = "TBL_USER")
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@ToString(exclude = { "password" })
 public class UserVO {
 
   @Id

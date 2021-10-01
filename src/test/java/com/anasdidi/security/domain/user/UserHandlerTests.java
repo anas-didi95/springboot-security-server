@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClient.ResponseSpec;
@@ -26,14 +27,16 @@ public class UserHandlerTests {
   private final UserService userService;
   private final UserRepository userRepository;
   private final TokenProvider tokenProvider;
+  private final BCryptPasswordEncoder passwordEncoder;
 
   @Autowired
   public UserHandlerTests(WebTestClient webTestClient, UserService userService, UserRepository userRepository,
-      TokenProvider tokenProvider) {
+      TokenProvider tokenProvider, BCryptPasswordEncoder passwordEncoder) {
     this.webTestClient = webTestClient;
     this.userService = userService;
     this.userRepository = userRepository;
     this.tokenProvider = tokenProvider;
+    this.passwordEncoder = passwordEncoder;
   }
 
   private Map<String, Object> generateUserMap() {
@@ -48,7 +51,7 @@ public class UserHandlerTests {
 
   private void assertVO(Map<String, Object> expected, UserVO actual) {
     Assertions.assertEquals(expected.get("username"), actual.getUsername());
-    Assertions.assertEquals(expected.get("password"), actual.getPassword());
+    Assertions.assertTrue(passwordEncoder.matches((String) expected.get("password"), actual.getPassword()));
     Assertions.assertEquals(expected.get("fullName"), actual.getFullName());
     Assertions.assertEquals(expected.get("email"), actual.getEmail());
     Assertions.assertNotNull(actual.getVersion());

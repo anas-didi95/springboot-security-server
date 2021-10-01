@@ -32,63 +32,79 @@ class UserServiceBean implements UserService {
 
   @Override
   public Mono<String> create(UserDTO dto) {
-    return Mono.just(dto.toVO()).map(vo -> {
-      vo.setId(ApplicationUtils.getFormattedUUID());
-      vo.setPassword(passwordEncoder.encode(dto.password));
-      vo.setLastModifiedDate(new Date());
-      vo.setVersion(0);
-      return vo;
-    }).map(vo -> userRepository.save(vo)).doOnError(e -> {
+    UserVO vo = dto.toVO();
+    vo.setId(ApplicationUtils.getFormattedUUID());
+    vo.setPassword(passwordEncoder.encode(dto.password));
+    vo.setLastModifiedDate(new Date());
+    vo.setVersion(0);
+
+    if (logger.isDebugEnabled()) {
+      logger.debug("[create:{}] {}", dto.sessionId, vo);
+    }
+
+    return Mono.just(vo).map(userRepository::save).doOnError(e -> {
       logger.error("[create:{}] {}", dto.sessionId, e.getMessage());
-      logger.error("[create:{}] {}", dto.sessionId, dto);
+      logger.error("[create:{}] {}", dto.sessionId, vo);
       e.addSuppressed(new ApplicationException(UserConstants.ERROR_CREATE,
           message.getErrorMessage(UserConstants.ERROR_CREATE), e.getMessage()));
-    }).map(vo -> vo.getId());
+    }).map(result -> result.getId());
   }
 
   @Override
   public Mono<String> update(UserDTO dto) {
-    Mono<UserVO> db = Mono.defer(() -> {
+    UserVO reqVO = dto.toVO();
+    return Mono.defer(() -> {
       Optional<UserVO> result = userRepository.findById(dto.id);
+
+      if (logger.isDebugEnabled()) {
+        logger.debug("[update:{}] id={}, isPresent={}", dto.sessionId, dto.id, result.isPresent());
+      }
 
       if (result.isPresent()) {
         UserVO vo = result.get();
         if (vo.getVersion() == dto.version) {
           return Mono.just(vo);
         } else {
-          logger.error("[update:{}] {}", dto.sessionId, dto);
+          logger.error("[update:{}] id={}, dto.version={}, vo.version={}", dto.sessionId, dto.version, vo.getVersion());
           return Mono.error(UserException.getVersionNotMatched(message, vo));
         }
       } else {
-        logger.error("[update:{}] {}", dto.sessionId, dto);
+        logger.error("[update:{}] id={}, isPresent={}", dto.sessionId, dto.id, result.isPresent());
         return Mono.error(UserException.getUserNotFound(message, dto));
       }
-    });
+    }).map(dbVO -> {
+      reqVO.setId(dbVO.getId());
+      reqVO.setPassword(dbVO.getPassword());
+      reqVO.setLastModifiedDate(new Date());
+      reqVO.setVersion(dbVO.getVersion() + 1);
 
-    return Mono.zip(db, Mono.just(dto.toVO()), (dbVO, reqVO) -> {
-      dbVO.setFullName(reqVO.getFullName());
-      dbVO.setEmail(reqVO.getEmail());
-      dbVO.setLastModifiedDate(new Date());
-      dbVO.setVersion(dbVO.getVersion() + 1);
-      return dbVO;
-    }).map(vo -> userRepository.save(vo)).map(vo -> vo.getId());
+      if (logger.isDebugEnabled()) {
+        logger.debug("[update:{}] {}", dto.sessionId, reqVO);
+      }
+
+      return reqVO;
+    }).map(userRepository::save).map(result -> result.getId());
   }
 
   @Override
   public Mono<String> delete(UserDTO dto) {
     return Mono.defer(() -> {
-      Optional<UserVO> userVO = userRepository.findById(dto.id);
+      Optional<UserVO> result = userRepository.findById(dto.id);
 
-      if (userVO.isPresent()) {
-        UserVO vo = userVO.get();
+      if (logger.isDebugEnabled()) {
+        logger.debug("[delete:{}] id={}, isPresent={}", dto.sessionId, dto.id, result.isPresent());
+      }
+
+      if (result.isPresent()) {
+        UserVO vo = result.get();
         if (vo.getVersion() == dto.version) {
-          return Mono.just(userVO.get());
+          return Mono.just(result.get());
         } else {
-          logger.error("[delete:{}", dto.sessionId, dto);
+          logger.error("[delete:{}] id={}, dto.version={}, vo.version={}", dto.sessionId, dto.version, vo.getVersion());
           return Mono.error(UserException.getVersionNotMatched(message, vo));
         }
       } else {
-        logger.error("[delete:{}] {}", dto.sessionId, dto);
+        logger.error("[delete:{}] id={}, isPresent={}", dto.sessionId, dto.id, result.isPresent());
         return Mono.error(UserException.getUserNotFound(message, dto));
       }
     }).map(vo -> {
