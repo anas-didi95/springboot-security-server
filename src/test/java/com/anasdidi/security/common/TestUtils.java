@@ -2,11 +2,13 @@ package com.anasdidi.security.common;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import com.anasdidi.security.config.TokenProvider;
 import com.anasdidi.security.domain.user.UserVO;
 
+import org.junit.jupiter.api.Assertions;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -14,6 +16,13 @@ import org.springframework.test.web.reactive.server.WebTestClient.RequestBodySpe
 import org.springframework.test.web.reactive.server.WebTestClient.ResponseSpec;
 
 public class TestUtils {
+
+  public static void assertValidationError(List<String> actualList, List<String> expectedList) {
+    Assertions.assertEquals(expectedList.size(), actualList.size());
+    expectedList.stream().forEach(error -> {
+      Assertions.assertTrue(actualList.contains(error), "Expected error not found! " + error);
+    });
+  }
 
   public static String getAccessToken(TokenProvider tokenProvider) {
     return tokenProvider.generateToken("UNITTEST", Arrays.asList("ADMIN"));

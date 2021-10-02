@@ -75,4 +75,18 @@ public class AuthHandlerTests {
     List<String> errorList = (List<String>) responseBody.get("errors");
     Assertions.assertEquals("Required keys: username,password", errorList.get(0));
   }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testAuthLoginValidationError() {
+    ResponseSpec response = TestUtils.doPost(webTestClient, "/auth/login", new HashMap<>());
+    response.expectStatus().isEqualTo(HttpStatus.BAD_REQUEST);
+
+    Map<String, Object> responseBody = response.expectBody(Map.class).returnResult().getResponseBody();
+    Assertions.assertEquals("E002", responseBody.get("code"));
+    Assertions.assertEquals("Validation error!", responseBody.get("message"));
+
+    List<String> errorList = (List<String>) responseBody.get("errors");
+    Assertions.assertTrue(!errorList.isEmpty());
+  }
 }
