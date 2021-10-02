@@ -58,6 +58,7 @@ public class UserHandlerTests {
     Assertions.assertNotNull(actual.getLastModifiedDate());
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void testUserCreateSuccess() {
     Map<String, Object> requestBody = generateUserMap();
@@ -66,7 +67,6 @@ public class UserHandlerTests {
         TestUtils.getAccessToken(tokenProvider));
     response.expectStatus().isEqualTo(HttpStatus.CREATED);
 
-    @SuppressWarnings("unchecked")
     Map<String, Object> responseBody = response.expectBody(Map.class).returnResult().getResponseBody();
     Assertions.assertNotNull(responseBody.get("id"));
 
@@ -79,21 +79,21 @@ public class UserHandlerTests {
     }
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void testUserCreateRequestBodyEmptyError() {
     ResponseSpec response = TestUtils.doPost(webTestClient, "/user", null, TestUtils.getAccessToken(tokenProvider));
     response.expectStatus().isEqualTo(HttpStatus.BAD_REQUEST);
 
-    @SuppressWarnings("unchecked")
     Map<String, Object> responseBody = response.expectBody(Map.class).returnResult().getResponseBody();
     Assertions.assertEquals("E001", responseBody.get("code"));
     Assertions.assertEquals("Request body is empty!", responseBody.get("message"));
 
-    @SuppressWarnings("unchecked")
     List<String> errorList = (List<String>) responseBody.get("errors");
-    Assertions.assertEquals(true, !errorList.isEmpty());
+    Assertions.assertEquals("Required keys: username,password,fullName,email", errorList.get(0));
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void testUserCreateValidationError() {
     Map<String, Object> requestBody = generateUserMap();
@@ -103,16 +103,15 @@ public class UserHandlerTests {
         TestUtils.getAccessToken(tokenProvider));
     response.expectStatus().isEqualTo(HttpStatus.BAD_REQUEST);
 
-    @SuppressWarnings("unchecked")
     Map<String, Object> responseBody = response.expectBody(Map.class).returnResult().getResponseBody();
     Assertions.assertEquals("E002", responseBody.get("code"));
     Assertions.assertEquals("Validation error!", responseBody.get("message"));
 
-    @SuppressWarnings("unchecked")
     List<String> errorList = (List<String>) responseBody.get("errors");
     Assertions.assertEquals(true, !errorList.isEmpty());
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void testUserCreateServiceError() {
     Map<String, Object> requestBody = generateUserMap();
@@ -122,16 +121,15 @@ public class UserHandlerTests {
         .block();
     response.expectStatus().isEqualTo(HttpStatus.BAD_REQUEST);
 
-    @SuppressWarnings("unchecked")
     Map<String, Object> responseBody = response.expectBody(Map.class).returnResult().getResponseBody();
     Assertions.assertEquals("E101", responseBody.get("code"));
     Assertions.assertEquals("User creation failed!", responseBody.get("message"));
 
-    @SuppressWarnings("unchecked")
     List<String> errorList = (List<String>) responseBody.get("errors");
     Assertions.assertEquals(true, !errorList.isEmpty());
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void testUserUpdateSuccess() {
     Map<String, Object> userMap = generateUserMap();
@@ -148,7 +146,6 @@ public class UserHandlerTests {
     }).block();
     response.expectStatus().isEqualTo(HttpStatus.OK);
 
-    @SuppressWarnings("unchecked")
     Map<String, Object> responseBody = response.expectBody(Map.class).returnResult().getResponseBody();
     Assertions.assertNotNull(responseBody.get("id"));
 
@@ -161,6 +158,7 @@ public class UserHandlerTests {
     }
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void testUserUpdateRequestBodyEmptyError() {
     Map<String, Object> userMap = generateUserMap();
@@ -170,16 +168,15 @@ public class UserHandlerTests {
         .block();
     response.expectStatus().isEqualTo(HttpStatus.BAD_REQUEST);
 
-    @SuppressWarnings("unchecked")
     Map<String, Object> responseBody = response.expectBody(Map.class).returnResult().getResponseBody();
     Assertions.assertEquals("E001", responseBody.get("code"));
     Assertions.assertEquals("Request body is empty!", responseBody.get("message"));
 
-    @SuppressWarnings("unchecked")
     List<String> errorList = (List<String>) responseBody.get("errors");
-    Assertions.assertEquals(true, !errorList.isEmpty());
+    Assertions.assertEquals("Required keys: fullName,email", errorList.get(0));
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void testUserUpdateValidationError() {
     Map<String, Object> userMap = generateUserMap();
@@ -190,16 +187,15 @@ public class UserHandlerTests {
     }).block();
     response.expectStatus().isEqualTo(HttpStatus.BAD_REQUEST);
 
-    @SuppressWarnings("unchecked")
     Map<String, Object> responseBody = response.expectBody(Map.class).returnResult().getResponseBody();
     Assertions.assertEquals("E002", responseBody.get("code"));
     Assertions.assertEquals("Validation error!", responseBody.get("message"));
 
-    @SuppressWarnings("unchecked")
     List<String> errorList = (List<String>) responseBody.get("errors");
     Assertions.assertEquals(true, !errorList.isEmpty());
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void testUserUpdateUserNotFoundError() {
     Map<String, Object> userMap = generateUserMap();
@@ -211,16 +207,15 @@ public class UserHandlerTests {
     }).block();
     response.expectStatus().isEqualTo(HttpStatus.BAD_REQUEST);
 
-    @SuppressWarnings("unchecked")
     Map<String, Object> responseBody = response.expectBody(Map.class).returnResult().getResponseBody();
     Assertions.assertEquals("E102", responseBody.get("code"));
     Assertions.assertEquals("User not found!", responseBody.get("message"));
 
-    @SuppressWarnings("unchecked")
     List<String> errorList = (List<String>) responseBody.get("errors");
     Assertions.assertTrue(!errorList.isEmpty());
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void testUserUpdateVersionNotMatchedError() {
     Map<String, Object> userMap = generateUserMap();
@@ -231,16 +226,15 @@ public class UserHandlerTests {
     }).block();
     response.expectStatus().isEqualTo(HttpStatus.BAD_REQUEST);
 
-    @SuppressWarnings("unchecked")
     Map<String, Object> responseBody = response.expectBody(Map.class).returnResult().getResponseBody();
     Assertions.assertEquals("E103", responseBody.get("code"));
     Assertions.assertEquals("User version not matched!", responseBody.get("message"));
 
-    @SuppressWarnings("unchecked")
     List<String> errorList = (List<String>) responseBody.get("errors");
     Assertions.assertTrue(!errorList.isEmpty());
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void testUserDeleteSuccess() {
     Map<String, Object> userMap = generateUserMap();
@@ -250,7 +244,6 @@ public class UserHandlerTests {
         .block();
     response.expectStatus().isEqualTo(HttpStatus.OK);
 
-    @SuppressWarnings("unchecked")
     Map<String, Object> responseBody = response.expectBody(Map.class).returnResult().getResponseBody();
     Assertions.assertNotNull(responseBody.get("id"));
 
@@ -259,6 +252,7 @@ public class UserHandlerTests {
     Assertions.assertTrue(userVO.isEmpty());
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void testUserDeleteUserNotFoundError() {
     Map<String, Object> userMap = generateUserMap();
@@ -267,16 +261,15 @@ public class UserHandlerTests {
         "/user/" + System.currentTimeMillis() + "/0", TestUtils.getAccessToken(tokenProvider))).block();
     response.expectStatus().isEqualTo(HttpStatus.BAD_REQUEST);
 
-    @SuppressWarnings("unchecked")
     Map<String, Object> responseBody = response.expectBody(Map.class).returnResult().getResponseBody();
     Assertions.assertEquals("E102", responseBody.get("code"));
     Assertions.assertEquals("User not found!", responseBody.get("message"));
 
-    @SuppressWarnings("unchecked")
     List<String> errorList = (List<String>) responseBody.get("errors");
     Assertions.assertTrue(!errorList.isEmpty());
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void testUserDeleteVersionNotMatchedError() {
     Map<String, Object> userMap = generateUserMap();
@@ -286,12 +279,10 @@ public class UserHandlerTests {
         .block();
     response.expectStatus().isEqualTo(HttpStatus.BAD_REQUEST);
 
-    @SuppressWarnings("unchecked")
     Map<String, Object> responseBody = response.expectBody(Map.class).returnResult().getResponseBody();
     Assertions.assertEquals("E103", responseBody.get("code"));
     Assertions.assertEquals("User version not matched!", responseBody.get("message"));
 
-    @SuppressWarnings("unchecked")
     List<String> errorList = (List<String>) responseBody.get("errors");
     Assertions.assertTrue(!errorList.isEmpty());
   }

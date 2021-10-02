@@ -32,10 +32,15 @@ public class TestUtils {
     return new UserVO(id, username, password, fullName, email, lastModifiedDate, version);
   }
 
+  public static final ResponseSpec doPost(WebTestClient webTestClient, String uri, Map<String, Object> requestBody) {
+    return doPost(webTestClient, uri, requestBody, null);
+  }
+
   public static final ResponseSpec doPost(WebTestClient webTestClient, String uri, Map<String, Object> requestBody,
       String accessToken) {
     RequestBodySpec request = webTestClient.post().uri(uri).accept(MediaType.APPLICATION_JSON)
-        .contentType(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+        .contentType(MediaType.APPLICATION_JSON);
+    request = accessToken != null ? request.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken) : request;
     return requestBody != null ? request.bodyValue(requestBody).exchange() : request.exchange();
   }
 

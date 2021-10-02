@@ -1,6 +1,7 @@
 package com.anasdidi.security.domain.auth;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.anasdidi.security.common.TestUtils;
@@ -59,5 +60,19 @@ public class AuthHandlerTests {
     response = webTestClient.get().uri("/auth/check").accept(MediaType.APPLICATION_JSON)
         .header("Authorization", "Bearer " + accessToken).exchange();
     response.expectStatus().isEqualTo(HttpStatus.OK);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testAuthLoginRequestBodyEmptyError() {
+    ResponseSpec response = TestUtils.doPost(webTestClient, "/auth/login", null);
+    response.expectStatus().isEqualTo(HttpStatus.BAD_REQUEST);
+
+    Map<String, Object> responseBody = response.expectBody(Map.class).returnResult().getResponseBody();
+    Assertions.assertEquals("E001", responseBody.get("code"));
+    Assertions.assertEquals("Request body is empty!", responseBody.get("message"));
+
+    List<String> errorList = (List<String>) responseBody.get("errors");
+    Assertions.assertEquals("Required keys: username,password", errorList.get(0));
   }
 }

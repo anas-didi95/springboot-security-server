@@ -23,8 +23,8 @@ class AuthHandler extends BaseHandler {
   }
 
   Mono<ServerResponse> login(ServerRequest request) {
-    Mono<Map<String, Object>> subscriber = getRequestBody(request, null).map(map -> AuthDTO.fromMap(map))
-        .flatMap(dto -> authService.login(dto)).map(accessToken -> {
+    Mono<Map<String, Object>> subscriber = getRequestBody(request, "username", "password")
+        .map(map -> AuthDTO.fromMap(map)).flatMap(dto -> authService.login(dto)).map(accessToken -> {
           Map<String, Object> responseBody = new HashMap<>();
           responseBody.put("accessToken", accessToken);
           return responseBody;
