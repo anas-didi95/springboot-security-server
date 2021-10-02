@@ -10,12 +10,36 @@ import com.anasdidi.security.domain.user.UserVO;
 
 import org.junit.jupiter.api.Assertions;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClient.RequestBodySpec;
 import org.springframework.test.web.reactive.server.WebTestClient.ResponseSpec;
 
 public class TestUtils {
+
+  public static void assertResponseError(ResponseSpec response, HttpStatus expectedStatus, String expectedCode,
+      String expectedMessage) {
+    assertResponseError(response, expectedStatus, expectedCode, expectedMessage, null);
+  }
+
+  @SuppressWarnings("unchecked")
+  public static void assertResponseError(ResponseSpec response, HttpStatus expectedStatus, String expectedCode,
+      String expectedMessage, String expectedError) {
+    response.expectStatus().isEqualTo(HttpStatus.BAD_REQUEST);
+
+    Map<String, Object> responseBody = response.expectBody(Map.class).returnResult().getResponseBody();
+    Assertions.assertEquals(expectedCode, responseBody.get("code"));
+    Assertions.assertEquals(expectedMessage, responseBody.get("message"));
+
+    if (expectedError != null) {
+      List<String> errorList = (List<String>) responseBody.get("errors");
+      Assertions.assertEquals(expectedError, errorList.get(0));
+    } else {
+      List<String> errorList = (List<String>) responseBody.get("errors");
+      Assertions.assertTrue(!errorList.isEmpty());
+    }
+  }
 
   public static void assertValidationError(List<String> actualList, List<String> expectedList) {
     Assertions.assertEquals(expectedList.size(), actualList.size());
