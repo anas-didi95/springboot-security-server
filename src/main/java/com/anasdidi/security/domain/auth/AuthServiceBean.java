@@ -19,15 +19,18 @@ import reactor.core.publisher.Mono;
 class AuthServiceBean implements AuthService {
 
   private static final Logger logger = LogManager.getLogger(AuthServiceBean.class);
-  private final UserRepository userRepository;
   private final TokenProvider tokenProvider;
   private final BCryptPasswordEncoder passwordEncoder;
+  private final UserRepository userRepository;
+  private final AuthException authException;
 
   @Autowired
-  AuthServiceBean(UserRepository userRepository, TokenProvider tokenProvider, BCryptPasswordEncoder passwordEncoder) {
-    this.userRepository = userRepository;
+  AuthServiceBean(TokenProvider tokenProvider, BCryptPasswordEncoder passwordEncoder, UserRepository userRepository,
+      AuthException authException) {
     this.tokenProvider = tokenProvider;
     this.passwordEncoder = passwordEncoder;
+    this.userRepository = userRepository;
+    this.authException = authException;
   }
 
   @Override
@@ -36,7 +39,8 @@ class AuthServiceBean implements AuthService {
       List<UserVO> resultList = userRepository.findByUsername(dto.username);
 
       if (logger.isDebugEnabled()) {
-        logger.debug("[login:{}] resultList.size={}", dto.sessionId, (resultList != null ? resultList.size() : -1));
+        logger.debug("[login:{}] dto.username={}, resultList.size={}", dto.sessionId, dto.username,
+            (resultList != null ? resultList.size() : -1));
       }
 
       if (resultList != null && !resultList.isEmpty()) {
@@ -52,7 +56,9 @@ class AuthServiceBean implements AuthService {
         }
       }
 
-      return Mono.empty();
+      logger.error("[login:{}] dto.username={}, resultList.size={}", dto.sessionId, dto.username,
+          (resultList != null ? resultList.size() : -1));
+      return Mono.error(authException.throwInvalidCredentials());
     });
   }
 }

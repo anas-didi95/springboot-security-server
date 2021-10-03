@@ -26,15 +26,15 @@ import reactor.core.publisher.Mono;
 public class AuthHandlerTests {
 
   private final WebTestClient webTestClient;
-  private final UserRepository userRepository;
   private final BCryptPasswordEncoder passwordEncoder;
+  private final UserRepository userRepository;
 
   @Autowired
-  public AuthHandlerTests(WebTestClient webTestClient, UserRepository userRepository,
-      BCryptPasswordEncoder passwordEncoder) {
+  public AuthHandlerTests(WebTestClient webTestClient, BCryptPasswordEncoder passwordEncoder,
+      UserRepository userRepository) {
     this.webTestClient = webTestClient;
-    this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
+    this.userRepository = userRepository;
   }
 
   @SuppressWarnings("unchecked")
@@ -72,5 +72,16 @@ public class AuthHandlerTests {
   public void testAuthLoginValidationError() {
     ResponseSpec response = TestUtils.doPost(webTestClient, "/auth/login", new HashMap<>());
     TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E002", "Validation error!");
+  }
+
+  @Test
+  public void testAuthLoginInvalidUsernameError() {
+    Map<String, Object> requestBody = new HashMap<>();
+    requestBody.put("username", "username" + System.currentTimeMillis());
+    requestBody.put("password", "password" + System.currentTimeMillis());
+
+    ResponseSpec response = TestUtils.doPost(webTestClient, "/auth/login", requestBody);
+    TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E201", "Invalid credentials!",
+        "Wrong username/password");
   }
 }
