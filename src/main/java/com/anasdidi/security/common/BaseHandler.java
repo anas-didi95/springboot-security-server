@@ -21,8 +21,8 @@ public abstract class BaseHandler {
     this.message = message;
   }
 
-  protected Mono<ServerResponse> sendResponse(Mono<Map<String, Object>> subscriber,
-      HttpStatus httpStatus, ServerRequest request) {
+  protected Mono<ServerResponse> sendResponse(Mono<Map<String, Object>> subscriber, HttpStatus httpStatus,
+      ServerRequest request) {
     final String TAG = "sendResponse";
 
     return subscriber.log(TAG).flatMap(responseBody -> {
@@ -35,8 +35,8 @@ public abstract class BaseHandler {
       if (e instanceof ApplicationException) {
         ex = (ApplicationException) e;
       } else if (e.getSuppressed().length > 0) {
-        Optional<Throwable> ee = Arrays.stream(e.getSuppressed())
-            .filter(t -> t instanceof ApplicationException).findFirst();
+        Optional<Throwable> ee = Arrays.stream(e.getSuppressed()).filter(t -> t instanceof ApplicationException)
+            .findFirst();
         if (ee.isPresent()) {
           ex = (ApplicationException) ee.get();
         }
@@ -56,13 +56,13 @@ public abstract class BaseHandler {
     });
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes"})
-  protected Mono<Map<String, Object>> getRequestData(ServerRequest request, String json) {
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  protected Mono<Map<String, Object>> getRequestBody(ServerRequest request, String... keys) {
     Mono<Map> requestBody = request.bodyToMono(Map.class);
-    if (json != null && !json.isBlank()) {
-      requestBody = requestBody.switchIfEmpty(
-          Mono.defer(() -> Mono.error(new ApplicationException(ERROR_REQUEST_BODY_EMPTY,
-              message.getErrorMessage(ERROR_REQUEST_BODY_EMPTY), "Required json: " + json))));
+    if (keys != null && keys.length > 0) {
+      requestBody = requestBody
+          .switchIfEmpty(Mono.defer(() -> Mono.error(new ApplicationException(ERROR_REQUEST_BODY_EMPTY,
+              message.getErrorMessage(ERROR_REQUEST_BODY_EMPTY), "Required keys: " + String.join(",", keys)))));
     } else {
       requestBody = requestBody.defaultIfEmpty(new HashMap<>());
     }
@@ -83,19 +83,18 @@ public abstract class BaseHandler {
     });
   }
 
-  private void logResponseStatus(ServerRequest request, String tag, boolean isSuccess,
-      HttpStatus httpStatus) {
+  private void logResponseStatus(ServerRequest request, String tag, boolean isSuccess, HttpStatus httpStatus) {
     logResponseStatus(request, tag, isSuccess, httpStatus, null, null);
   }
 
-  private void logResponseStatus(ServerRequest request, String tag, boolean isSuccess,
-      HttpStatus httpStatus, String code, String message) {
+  private void logResponseStatus(ServerRequest request, String tag, boolean isSuccess, HttpStatus httpStatus,
+      String code, String message) {
     if (isSuccess) {
-      getSessionData(request).subscribe(map -> logger.info("[{}:{}] onSuccess : httpStatus={}", tag,
-          map.get("sessionId"), httpStatus));
+      getSessionData(request)
+          .subscribe(map -> logger.info("[{}:{}] onSuccess : httpStatus={}", tag, map.get("sessionId"), httpStatus));
     } else {
-      getSessionData(request).subscribe(map -> logger.error("[{}:{}] onError : code={}, message={}",
-          tag, map.get("sessionId"), code, message));
+      getSessionData(request).subscribe(
+          map -> logger.error("[{}:{}] onError : code={}, message={}", tag, map.get("sessionId"), code, message));
     }
   }
 }

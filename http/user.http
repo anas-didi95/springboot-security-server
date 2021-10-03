@@ -1,13 +1,15 @@
 @baseUrl = http://{{$processEnv APP_HOST}}:{{$processEnv APP_PORT}}/security/user
 @userId = {{create.response.body.$.id}}
+@accessToken = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJVTklUVEVTVCIsInBtcyI6WyJBRE1JTiJdLCJpc3MiOiJodHRwczovL2FuYXNkaWRpLmRldiIsImV4cCI6MTYzMzEwODg2MCwiaWF0IjoxNjMzMDkwODYwfQ.ZJfHZoTq581ULd-52-SfbsBWuw5Yiy7HEWBn0se-u8s
 
 // @name create
 POST {{baseUrl}}
 Accept: application/json
 Content-Type: application/json
+Authorization: Bearer {{accessToken}}
 
 {
-  "username": "username1",
+  "username": "username",
   "password": "password",
   "fullName": "fullName",
   "email": "email@domain.com"

@@ -1,16 +1,19 @@
 package com.anasdidi.security.domain.user;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import com.anasdidi.security.common.TestUtils;
+import com.anasdidi.security.config.TokenProvider;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClient.ResponseSpec;
@@ -22,13 +25,17 @@ public class UserHandlerTests {
   private final WebTestClient webTestClient;
   private final UserService userService;
   private final UserRepository userRepository;
+  private final TokenProvider tokenProvider;
+  private final BCryptPasswordEncoder passwordEncoder;
 
   @Autowired
-  public UserHandlerTests(WebTestClient webTestClient, UserService userService,
-      UserRepository userRepository) {
+  public UserHandlerTests(WebTestClient webTestClient, UserService userService, UserRepository userRepository,
+      TokenProvider tokenProvider, BCryptPasswordEncoder passwordEncoder) {
     this.webTestClient = webTestClient;
     this.userService = userService;
     this.userRepository = userRepository;
+    this.tokenProvider = tokenProvider;
+    this.passwordEncoder = passwordEncoder;
   }
 
   private Map<String, Object> generateUserMap() {
@@ -43,24 +50,23 @@ public class UserHandlerTests {
 
   private void assertVO(Map<String, Object> expected, UserVO actual) {
     Assertions.assertEquals(expected.get("username"), actual.getUsername());
-    Assertions.assertEquals(expected.get("password"), actual.getPassword());
+    Assertions.assertTrue(passwordEncoder.matches((String) expected.get("password"), actual.getPassword()));
     Assertions.assertEquals(expected.get("fullName"), actual.getFullName());
     Assertions.assertEquals(expected.get("email"), actual.getEmail());
     Assertions.assertNotNull(actual.getVersion());
     Assertions.assertNotNull(actual.getLastModifiedDate());
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void testUserCreateSuccess() {
     Map<String, Object> requestBody = generateUserMap();
 
-    ResponseSpec response = webTestClient.post().uri("/user").accept(MediaType.APPLICATION_JSON)
-        .contentType(MediaType.APPLICATION_JSON).bodyValue(requestBody).exchange();
+    ResponseSpec response = TestUtils.doPost(webTestClient, "/user", requestBody,
+        TestUtils.getAccessToken(tokenProvider));
     response.expectStatus().isEqualTo(HttpStatus.CREATED);
 
-    @SuppressWarnings("unchecked")
-    Map<String, Object> responseBody =
-        response.expectBody(Map.class).returnResult().getResponseBody();
+    Map<String, Object> responseBody = response.expectBody(Map.class).returnResult().getResponseBody();
     Assertions.assertNotNull(responseBody.get("id"));
 
     String userId = (String) responseBody.get("id");
@@ -74,19 +80,9 @@ public class UserHandlerTests {
 
   @Test
   public void testUserCreateRequestBodyEmptyError() {
-    ResponseSpec response = webTestClient.post().uri("/user").accept(MediaType.APPLICATION_JSON)
-        .contentType(MediaType.APPLICATION_JSON).exchange();
-    response.expectStatus().isEqualTo(HttpStatus.BAD_REQUEST);
-
-    @SuppressWarnings("unchecked")
-    Map<String, Object> responseBody =
-        response.expectBody(Map.class).returnResult().getResponseBody();
-    Assertions.assertEquals("E001", responseBody.get("code"));
-    Assertions.assertEquals("Request body is empty!", responseBody.get("message"));
-
-    @SuppressWarnings("unchecked")
-    List<String> errorList = (List<String>) responseBody.get("errors");
-    Assertions.assertEquals(true, !errorList.isEmpty());
+    ResponseSpec response = TestUtils.doPost(webTestClient, "/user", null, TestUtils.getAccessToken(tokenProvider));
+    TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E001", "Request body is empty!",
+        "Required keys: username,password,fullName,email");
   }
 
   @Test
@@ -94,19 +90,9 @@ public class UserHandlerTests {
     Map<String, Object> requestBody = generateUserMap();
     requestBody.put("username", null);
 
-    ResponseSpec response = webTestClient.post().uri("/user").accept(MediaType.APPLICATION_JSON)
-        .contentType(MediaType.APPLICATION_JSON).bodyValue(requestBody).exchange();
-    response.expectStatus().isEqualTo(HttpStatus.BAD_REQUEST);
-
-    @SuppressWarnings("unchecked")
-    Map<String, Object> responseBody =
-        response.expectBody(Map.class).returnResult().getResponseBody();
-    Assertions.assertEquals("E002", responseBody.get("code"));
-    Assertions.assertEquals("Validation error!", responseBody.get("message"));
-
-    @SuppressWarnings("unchecked")
-    List<String> errorList = (List<String>) responseBody.get("errors");
-    Assertions.assertEquals(true, !errorList.isEmpty());
+    ResponseSpec response = TestUtils.doPost(webTestClient, "/user", requestBody,
+        TestUtils.getAccessToken(tokenProvider));
+    TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E002", "Validation error!");
   }
 
   @Test
@@ -114,22 +100,12 @@ public class UserHandlerTests {
     Map<String, Object> requestBody = generateUserMap();
 
     ResponseSpec response = userService.create(UserDTO.fromMap(requestBody))
-        .map(id -> webTestClient.post().uri("/user").accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON).bodyValue(requestBody).exchange())
+        .map(id -> TestUtils.doPost(webTestClient, "/user", requestBody, TestUtils.getAccessToken(tokenProvider)))
         .block();
-    response.expectStatus().isEqualTo(HttpStatus.BAD_REQUEST);
-
-    @SuppressWarnings("unchecked")
-    Map<String, Object> responseBody =
-        response.expectBody(Map.class).returnResult().getResponseBody();
-    Assertions.assertEquals("E101", responseBody.get("code"));
-    Assertions.assertEquals("User creation failed!", responseBody.get("message"));
-
-    @SuppressWarnings("unchecked")
-    List<String> errorList = (List<String>) responseBody.get("errors");
-    Assertions.assertEquals(true, !errorList.isEmpty());
+    TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E101", "User creation failed!");
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void testUserUpdateSuccess() {
     Map<String, Object> userMap = generateUserMap();
@@ -142,16 +118,12 @@ public class UserHandlerTests {
       userMap.put("email", email);
       userMap.put("version", 0);
 
-      return webTestClient.put().uri("/user/" + id).accept(MediaType.APPLICATION_JSON)
-          .contentType(MediaType.APPLICATION_JSON).bodyValue(userMap).exchange();
+      return TestUtils.doPut(webTestClient, "/user/" + id, userMap, TestUtils.getAccessToken(tokenProvider));
     }).block();
     response.expectStatus().isEqualTo(HttpStatus.OK);
 
-    @SuppressWarnings("unchecked")
-    Map<String, Object> responseBody =
-        response.expectBody(Map.class).returnResult().getResponseBody();
+    Map<String, Object> responseBody = response.expectBody(Map.class).returnResult().getResponseBody();
     Assertions.assertNotNull(responseBody.get("id"));
-
 
     String userId = (String) responseBody.get("id");
     Optional<UserVO> result = userRepository.findById(userId);
@@ -166,21 +138,11 @@ public class UserHandlerTests {
   public void testUserUpdateRequestBodyEmptyError() {
     Map<String, Object> userMap = generateUserMap();
 
-    ResponseSpec response = userService.create(UserDTO.fromMap(userMap)).map(id -> {
-      return webTestClient.put().uri("/user/" + id).accept(MediaType.APPLICATION_JSON)
-          .contentType(MediaType.APPLICATION_JSON).exchange();
-    }).block();
-    response.expectStatus().isEqualTo(HttpStatus.BAD_REQUEST);
-
-    @SuppressWarnings("unchecked")
-    Map<String, Object> responseBody =
-        response.expectBody(Map.class).returnResult().getResponseBody();
-    Assertions.assertEquals("E001", responseBody.get("code"));
-    Assertions.assertEquals("Request body is empty!", responseBody.get("message"));
-
-    @SuppressWarnings("unchecked")
-    List<String> errorList = (List<String>) responseBody.get("errors");
-    Assertions.assertEquals(true, !errorList.isEmpty());
+    ResponseSpec response = userService.create(UserDTO.fromMap(userMap))
+        .map(id -> TestUtils.doPut(webTestClient, "/user/" + id, null, TestUtils.getAccessToken(tokenProvider)))
+        .block();
+    TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E001", "Request body is empty!",
+        "Required keys: fullName,email");
   }
 
   @Test
@@ -189,20 +151,9 @@ public class UserHandlerTests {
 
     ResponseSpec response = userService.create(UserDTO.fromMap(userMap)).map(id -> {
       userMap.clear();
-      return webTestClient.put().uri("/user/" + id).accept(MediaType.APPLICATION_JSON)
-          .contentType(MediaType.APPLICATION_JSON).bodyValue(userMap).exchange();
+      return TestUtils.doPut(webTestClient, "/user/" + id, userMap, TestUtils.getAccessToken(tokenProvider));
     }).block();
-    response.expectStatus().isEqualTo(HttpStatus.BAD_REQUEST);
-
-    @SuppressWarnings("unchecked")
-    Map<String, Object> responseBody =
-        response.expectBody(Map.class).returnResult().getResponseBody();
-    Assertions.assertEquals("E002", responseBody.get("code"));
-    Assertions.assertEquals("Validation error!", responseBody.get("message"));
-
-    @SuppressWarnings("unchecked")
-    List<String> errorList = (List<String>) responseBody.get("errors");
-    Assertions.assertEquals(true, !errorList.isEmpty());
+    TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E002", "Validation error!");
   }
 
   @Test
@@ -211,20 +162,10 @@ public class UserHandlerTests {
 
     ResponseSpec response = userService.create(UserDTO.fromMap(userMap)).map(id -> {
       userMap.put("version", 0);
-      return webTestClient.put().uri("/user/incorrectId").accept(MediaType.APPLICATION_JSON)
-          .contentType(MediaType.APPLICATION_JSON).bodyValue(userMap).exchange();
+      return TestUtils.doPut(webTestClient, "/user/" + System.currentTimeMillis(), userMap,
+          TestUtils.getAccessToken(tokenProvider));
     }).block();
-    response.expectStatus().isEqualTo(HttpStatus.BAD_REQUEST);
-
-    @SuppressWarnings("unchecked")
-    Map<String, Object> responseBody =
-        response.expectBody(Map.class).returnResult().getResponseBody();
-    Assertions.assertEquals("E102", responseBody.get("code"));
-    Assertions.assertEquals("User not found!", responseBody.get("message"));
-
-    @SuppressWarnings("unchecked")
-    List<String> errorList = (List<String>) responseBody.get("errors");
-    Assertions.assertTrue(!errorList.isEmpty());
+    TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E102", "User not found!");
   }
 
   @Test
@@ -233,36 +174,22 @@ public class UserHandlerTests {
 
     ResponseSpec response = userService.create(UserDTO.fromMap(userMap)).map(id -> {
       userMap.put("version", -1);
-
-      return webTestClient.put().uri("/user/" + id).accept(MediaType.APPLICATION_JSON)
-          .contentType(MediaType.APPLICATION_JSON).bodyValue(userMap).exchange();
+      return TestUtils.doPut(webTestClient, "/user/" + id, userMap, TestUtils.getAccessToken(tokenProvider));
     }).block();
-    response.expectStatus().isEqualTo(HttpStatus.BAD_REQUEST);
-
-    @SuppressWarnings("unchecked")
-    Map<String, Object> responseBody =
-        response.expectBody(Map.class).returnResult().getResponseBody();
-    Assertions.assertEquals("E103", responseBody.get("code"));
-    Assertions.assertEquals("User version not matched!", responseBody.get("message"));
-
-    @SuppressWarnings("unchecked")
-    List<String> errorList = (List<String>) responseBody.get("errors");
-    Assertions.assertTrue(!errorList.isEmpty());
+    TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E103", "User version not matched!");
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void testUserDeleteSuccess() {
     Map<String, Object> userMap = generateUserMap();
 
-    ResponseSpec response = userService.create(UserDTO.fromMap(userMap)).map(id -> {
-      return webTestClient.delete().uri("/user/" + id + "/0").accept(MediaType.APPLICATION_JSON)
-          .exchange();
-    }).block();
+    ResponseSpec response = userService.create(UserDTO.fromMap(userMap))
+        .map(id -> TestUtils.doDelete(webTestClient, "/user/" + id + "/0", TestUtils.getAccessToken(tokenProvider)))
+        .block();
     response.expectStatus().isEqualTo(HttpStatus.OK);
 
-    @SuppressWarnings("unchecked")
-    Map<String, Object> responseBody =
-        response.expectBody(Map.class).returnResult().getResponseBody();
+    Map<String, Object> responseBody = response.expectBody(Map.class).returnResult().getResponseBody();
     Assertions.assertNotNull(responseBody.get("id"));
 
     String userId = (String) responseBody.get("id");
@@ -274,41 +201,18 @@ public class UserHandlerTests {
   public void testUserDeleteUserNotFoundError() {
     Map<String, Object> userMap = generateUserMap();
 
-    ResponseSpec response = userService.create(UserDTO.fromMap(userMap)).map(id -> {
-      return webTestClient.delete().uri("/user/" + System.currentTimeMillis() + "/0")
-          .accept(MediaType.APPLICATION_JSON).exchange();
-    }).block();
-    response.expectStatus().isEqualTo(HttpStatus.BAD_REQUEST);
-
-    @SuppressWarnings("unchecked")
-    Map<String, Object> responseBody =
-        response.expectBody(Map.class).returnResult().getResponseBody();
-    Assertions.assertEquals("E102", responseBody.get("code"));
-    Assertions.assertEquals("User not found!", responseBody.get("message"));
-
-    @SuppressWarnings("unchecked")
-    List<String> errorList = (List<String>) responseBody.get("errors");
-    Assertions.assertTrue(!errorList.isEmpty());
+    ResponseSpec response = userService.create(UserDTO.fromMap(userMap)).map(id -> TestUtils.doDelete(webTestClient,
+        "/user/" + System.currentTimeMillis() + "/0", TestUtils.getAccessToken(tokenProvider))).block();
+    TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E102", "User not found!");
   }
 
   @Test
   public void testUserDeleteVersionNotMatchedError() {
     Map<String, Object> userMap = generateUserMap();
 
-    ResponseSpec response = userService.create(UserDTO.fromMap(userMap)).map(id -> {
-      return webTestClient.delete().uri("/user/" + id + "/-1").accept(MediaType.APPLICATION_JSON)
-          .exchange();
-    }).block();
-    response.expectStatus().isEqualTo(HttpStatus.BAD_REQUEST);
-
-    @SuppressWarnings("unchecked")
-    Map<String, Object> responseBody =
-        response.expectBody(Map.class).returnResult().getResponseBody();
-    Assertions.assertEquals("E103", responseBody.get("code"));
-    Assertions.assertEquals("User version not matched!", responseBody.get("message"));
-
-    @SuppressWarnings("unchecked")
-    List<String> errorList = (List<String>) responseBody.get("errors");
-    Assertions.assertTrue(!errorList.isEmpty());
+    ResponseSpec response = userService.create(UserDTO.fromMap(userMap))
+        .map(id -> TestUtils.doDelete(webTestClient, "/user/" + id + "/-1", TestUtils.getAccessToken(tokenProvider)))
+        .block();
+    TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E103", "User version not matched!");
   }
 }

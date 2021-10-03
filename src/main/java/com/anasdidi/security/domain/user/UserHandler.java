@@ -25,15 +25,13 @@ class UserHandler extends BaseHandler {
   }
 
   Mono<ServerResponse> create(ServerRequest request) {
-    Mono<Map<String, Object>> subscriber =
-        getRequestData(request, "{username,password,fullName,email}")
-            .map(map -> UserDTO.fromMap(map))
-            .flatMap(dto -> userValidator.validate(UserValidator.Action.CREATE, dto))
-            .flatMap(dto -> userService.create(dto)).map(id -> {
-              Map<String, Object> map = new HashMap<>();
-              map.put("id", id);
-              return map;
-            });
+    Mono<Map<String, Object>> subscriber = getRequestBody(request, "username", "password", "fullName", "email")
+        .map(map -> UserDTO.fromMap(map)).flatMap(dto -> userValidator.validate(UserValidator.Action.CREATE, dto))
+        .flatMap(dto -> userService.create(dto)).map(id -> {
+          Map<String, Object> map = new HashMap<>();
+          map.put("id", id);
+          return map;
+        });
 
     return sendResponse(subscriber, HttpStatus.CREATED, request);
   }
@@ -41,11 +39,10 @@ class UserHandler extends BaseHandler {
   Mono<ServerResponse> update(ServerRequest request) {
     String userId = request.pathVariable("userId");
 
-    Mono<Map<String, Object>> subscriber = getRequestData(request, "{fullName,email}").map(map -> {
+    Mono<Map<String, Object>> subscriber = getRequestBody(request, "fullName", "email").map(map -> {
       map.put("id", userId);
       return map;
-    }).map(map -> UserDTO.fromMap(map))
-        .flatMap(dto -> userValidator.validate(UserValidator.Action.UPDATE, dto))
+    }).map(map -> UserDTO.fromMap(map)).flatMap(dto -> userValidator.validate(UserValidator.Action.UPDATE, dto))
         .flatMap(dto -> userService.update(dto)).map(id -> {
           Map<String, Object> responseBody = new HashMap<>();
           responseBody.put("id", id);
@@ -59,7 +56,7 @@ class UserHandler extends BaseHandler {
     String userId = request.pathVariable("userId");
     String userVersion = request.pathVariable("userVersion");
 
-    Mono<Map<String, Object>> subscriber = getRequestData(request, null).map(map -> {
+    Mono<Map<String, Object>> subscriber = getRequestBody(request).map(map -> {
       map.put("id", userId);
       map.put("version", Integer.parseInt(userVersion));
       return map;
