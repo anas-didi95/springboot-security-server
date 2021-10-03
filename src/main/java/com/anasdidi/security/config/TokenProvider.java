@@ -52,7 +52,7 @@ public class TokenProvider {
   }
 
   private Claims getAllClaimsFromToken(String token) {
-    return Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token).getBody();
+    return Jwts.parser().requireIssuer(ISSUER).setSigningKey(SECRET).parseClaimsJws(token).getBody();
   }
 
   private String doGenerateToken(String subject, List<String> permissionList) {
