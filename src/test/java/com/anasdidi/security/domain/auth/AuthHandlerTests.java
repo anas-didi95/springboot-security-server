@@ -84,4 +84,21 @@ public class AuthHandlerTests {
     TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E201", "Invalid credentials!",
         "Wrong username/password");
   }
+
+  @Test
+  public void testAuthLoginInvalidPasswordError() {
+    UserVO userVO = TestUtils.generateUserVO();
+    String password = userVO.getPassword();
+    userVO.setPassword(passwordEncoder.encode(password));
+
+    ResponseSpec response = Mono.just(userRepository.save(userVO)).map(vo -> {
+      Map<String, Object> requestBody = new HashMap<>();
+      requestBody.put("username", vo.getUsername());
+      requestBody.put("password", "password" + System.currentTimeMillis());
+      return requestBody;
+    }).map(requestBody -> webTestClient.post().uri("/auth/login").accept(MediaType.APPLICATION_JSON)
+        .contentType(MediaType.APPLICATION_JSON).bodyValue(requestBody).exchange()).block();
+    TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E201", "Invalid credentials!",
+        "Wrong username/password");
+  }
 }
