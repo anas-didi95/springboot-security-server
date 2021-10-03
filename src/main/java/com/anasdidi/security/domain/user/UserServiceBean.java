@@ -3,8 +3,6 @@ package com.anasdidi.security.domain.user;
 import java.util.Date;
 import java.util.Optional;
 
-import com.anasdidi.security.common.ApplicationException;
-import com.anasdidi.security.common.ApplicationMessage;
 import com.anasdidi.security.common.ApplicationUtils;
 
 import org.apache.logging.log4j.LogManager;
@@ -19,15 +17,15 @@ import reactor.core.publisher.Mono;
 class UserServiceBean implements UserService {
 
   private static final Logger logger = LogManager.getLogger(UserServiceBean.class);
-  private final UserRepository userRepository;
-  private final ApplicationMessage message;
   private final BCryptPasswordEncoder passwordEncoder;
+  private final UserRepository userRepository;
+  private final UserException userException;
 
   @Autowired
-  UserServiceBean(UserRepository userRepository, ApplicationMessage message, BCryptPasswordEncoder passwordEncoder) {
-    this.userRepository = userRepository;
-    this.message = message;
+  UserServiceBean(BCryptPasswordEncoder passwordEncoder, UserRepository userRepository, UserException userException) {
     this.passwordEncoder = passwordEncoder;
+    this.userRepository = userRepository;
+    this.userException = userException;
   }
 
   @Override
@@ -45,8 +43,7 @@ class UserServiceBean implements UserService {
     return Mono.just(vo).map(userRepository::save).doOnError(e -> {
       logger.error("[create:{}] {}", dto.sessionId, e.getMessage());
       logger.error("[create:{}] {}", dto.sessionId, vo);
-      e.addSuppressed(new ApplicationException(UserConstants.ERROR_CREATE,
-          message.getErrorMessage(UserConstants.ERROR_CREATE), e.getMessage()));
+      e.addSuppressed(userException.throwUserCreationFailed(e.getMessage()));
     }).map(result -> result.getId());
   }
 
@@ -66,11 +63,11 @@ class UserServiceBean implements UserService {
           return Mono.just(vo);
         } else {
           logger.error("[update:{}] id={}, dto.version={}, vo.version={}", dto.sessionId, dto.version, vo.getVersion());
-          return Mono.error(UserException.getVersionNotMatched(message, vo));
+          return Mono.error(userException.throwVersionNotMatched(vo));
         }
       } else {
         logger.error("[update:{}] id={}, isPresent={}", dto.sessionId, dto.id, result.isPresent());
-        return Mono.error(UserException.getUserNotFound(message, dto));
+        return Mono.error(userException.throwUserNotFound(dto));
       }
     }).map(dbVO -> {
       reqVO.setId(dbVO.getId());
@@ -101,11 +98,11 @@ class UserServiceBean implements UserService {
           return Mono.just(result.get());
         } else {
           logger.error("[delete:{}] id={}, dto.version={}, vo.version={}", dto.sessionId, dto.version, vo.getVersion());
-          return Mono.error(UserException.getVersionNotMatched(message, vo));
+          return Mono.error(userException.throwVersionNotMatched(vo));
         }
       } else {
         logger.error("[delete:{}] id={}, isPresent={}", dto.sessionId, dto.id, result.isPresent());
-        return Mono.error(UserException.getUserNotFound(message, dto));
+        return Mono.error(userException.throwUserNotFound(dto));
       }
     }).map(vo -> {
       userRepository.delete(vo);
