@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
@@ -15,12 +17,20 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
 @Component
+@PropertySource(value = "classpath:config.properties")
 public class TokenProvider {
 
-  private final String SECRET = "secret";
-  private final String ISSUER = "https://anasdidi.dev";
   private final String PERMISSIONS_KEY = "pms";
-  private final long ACCESS_TOKEN_VALIDITY_SECONDS = 5 * 60 * 60;
+  private final String SECRET;
+  private final String ISSUER;
+  private final int ACCESS_TOKEN_VALIDITY_SECONDS;
+
+  public TokenProvider(@Value("${config.jwt.secret}") String SECRET, @Value("${config.jwt.issuer}") String ISSUER,
+      @Value("${config.jwt.accessTokenValidityMinutes}") int ACCESS_TOKEN_VALIDITY_SECONDS) {
+    this.SECRET = SECRET;
+    this.ISSUER = ISSUER;
+    this.ACCESS_TOKEN_VALIDITY_SECONDS = ACCESS_TOKEN_VALIDITY_SECONDS;
+  }
 
   public String getUserId(String token) {
     return getClaimFromToken(token, Claims::getSubject);
