@@ -36,6 +36,9 @@ Following table is a **mandatory** environment variables used in this project.
 | DB_URL | String | Database URL |
 | DB_USERNAME | String | Database username |
 | DB_PASSWORD | String | Database password |
+| JWT_SECRET | String  | JWT signature secret |
+| JWT_ISSUER | String | JWT issuer |
+| JWT_ACCESS_TOKEN_VALIDITY_MINUTES | Number | Total time in minutes for JWT access token validity |
 | LOG_LEVEL | String | Log level |
 
 ---
