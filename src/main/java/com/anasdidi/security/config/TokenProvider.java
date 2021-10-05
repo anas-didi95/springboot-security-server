@@ -7,6 +7,12 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.anasdidi.security.common.ApplicationUtils;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
@@ -15,12 +21,21 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
 @Component
+@PropertySource(value = "classpath:config.properties")
 public class TokenProvider {
 
-  private final String SECRET = "secret";
-  private final String ISSUER = "https://anasdidi.dev";
+  private static final Logger logger = LogManager.getLogger(TokenProvider.class);
   private final String PERMISSIONS_KEY = "pms";
-  private final long ACCESS_TOKEN_VALIDITY_SECONDS = 5 * 60 * 60;
+  private final String SECRET;
+  private final String ISSUER;
+  private final int ACCESS_TOKEN_VALIDITY_MINUTES;
+
+  public TokenProvider(@Value("${config.jwt.secret}") String SECRET, @Value("${config.jwt.issuer}") String ISSUER,
+      @Value("${config.jwt.accessTokenValidityMinutes}") int ACCESS_TOKEN_VALIDITY_MINUTES) {
+    this.SECRET = SECRET;
+    this.ISSUER = ISSUER;
+    this.ACCESS_TOKEN_VALIDITY_MINUTES = ACCESS_TOKEN_VALIDITY_MINUTES;
+  }
 
   public String getUserId(String token) {
     return getClaimFromToken(token, Claims::getSubject);
@@ -59,9 +74,14 @@ public class TokenProvider {
     Map<String, Object> claims = new HashMap<>();
     claims.put(PERMISSIONS_KEY, permissionList);
 
+    if (logger.isDebugEnabled()) {
+      logger.debug("[doGenerateToken] subject={}, secret={}, issuer={}, accessTokenValidityMinutes={}", subject,
+          ApplicationUtils.hideValue(SECRET), ApplicationUtils.hideValue(ISSUER), ACCESS_TOKEN_VALIDITY_MINUTES);
+    }
+
     return Jwts.builder().setClaims(claims).setSubject(subject).setIssuer(ISSUER)
         .setIssuedAt(new Date(System.currentTimeMillis()))
-        .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY_SECONDS * 1000))
+        .setExpiration(new Date(System.currentTimeMillis() + (ACCESS_TOKEN_VALIDITY_MINUTES * 60 * 1000)))
         .signWith(SignatureAlgorithm.HS256, SECRET).compact();
   }
 }

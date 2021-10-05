@@ -62,7 +62,8 @@ class UserServiceBean implements UserService {
         if (vo.getVersion() == dto.version) {
           return Mono.just(vo);
         } else {
-          logger.error("[update:{}] id={}, dto.version={}, vo.version={}", dto.sessionId, dto.version, vo.getVersion());
+          logger.error("[update:{}] id={}, dto.version={}, vo.version={}", dto.sessionId, dto.id, dto.version,
+              vo.getVersion());
           return Mono.error(userException.throwVersionNotMatched(vo));
         }
       } else {
@@ -97,7 +98,8 @@ class UserServiceBean implements UserService {
         if (vo.getVersion() == dto.version) {
           return Mono.just(result.get());
         } else {
-          logger.error("[delete:{}] id={}, dto.version={}, vo.version={}", dto.sessionId, dto.version, vo.getVersion());
+          logger.error("[delete:{}] id={}, dto.version={}, vo.version={}", dto.sessionId, dto.id, dto.version,
+              vo.getVersion());
           return Mono.error(userException.throwVersionNotMatched(vo));
         }
       } else {

@@ -36,6 +36,9 @@ Following table is a **mandatory** environment variables used in this project.
 | DB_URL | String | Database URL |
 | DB_USERNAME | String | Database username |
 | DB_PASSWORD | String | Database password |
+| JWT_SECRET | String  | JWT signature secret |
+| JWT_ISSUER | String | JWT issuer |
+| JWT_ACCESS_TOKEN_VALIDITY_MINUTES | Number | Total time in minutes for JWT access token validity |
 | LOG_LEVEL | String | Log level |
 
 ---
@@ -59,12 +62,12 @@ To run your application:
 ---
 
 ## Features
+- [x] Can create, update, delete user resource.
 
 ### TODO
-* Can create, update, delete user resource.
-* Add JWT authentication for resource handler.
-* Add GraphQL to query resource.
-* Add JWT refresh token to get new access token.
+- [ ] Add JWT authentication for resource handler.
+- [ ] Add GraphQL to query resource.
+- [ ] Add JWT refresh token to get new access token.
 
 ---
 
