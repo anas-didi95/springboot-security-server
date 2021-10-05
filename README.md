@@ -62,12 +62,12 @@ To run your application:
 ---
 
 ## Features
+- [x] Can create, update, delete user resource.
 
 ### TODO
-* Can create, update, delete user resource.
-* Add JWT authentication for resource handler.
-* Add GraphQL to query resource.
-* Add JWT refresh token to get new access token.
+- [ ] Add JWT authentication for resource handler.
+- [ ] Add GraphQL to query resource.
+- [ ] Add JWT refresh token to get new access token.
 
 ---
 
