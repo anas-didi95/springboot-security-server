@@ -75,7 +75,7 @@ public class TokenProvider {
     claims.put(PERMISSIONS_KEY, permissionList);
 
     if (logger.isDebugEnabled()) {
-      logger.debug("[doGenerateToken:{}] subject={}, secret={}, issuer={}, accessTokenValidityMinutes={}", traceId,
+      logger.debug("[doGenerateToken]{} subject={}, secret={}, issuer={}, accessTokenValidityMinutes={}", traceId,
           subject, ApplicationUtils.hideValue(SECRET), ApplicationUtils.hideValue(ISSUER),
           ACCESS_TOKEN_VALIDITY_MINUTES);
     }

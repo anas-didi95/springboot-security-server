@@ -97,9 +97,9 @@ public abstract class BaseHandler {
   private void logResponseStatus(String tag, String traceId, boolean isSuccess, HttpStatus httpStatus, String code,
       String message) {
     if (isSuccess) {
-      logger.info("[{}:{}] onSuccess : httpStatus={}", tag, traceId, httpStatus);
+      logger.info("[{}]{} onSuccess : httpStatus={}", tag, traceId, httpStatus);
     } else {
-      logger.error("[{}:{}] onError : code={}, message={}", tag, traceId, code, message);
+      logger.error("[{}]{} onError : code={}, message={}", tag, traceId, code, message);
     }
   }
 }

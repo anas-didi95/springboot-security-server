@@ -41,7 +41,7 @@ public class SecurityContextRepository implements ServerSecurityContextRepositor
       String traceId = session.getAttribute("traceId");
 
       if (logger.isDebugEnabled()) {
-        logger.debug("[load:{}] authHeader={}, hasToken={}", traceId, ApplicationUtils.hideValue(authHeader),
+        logger.debug("[load]{} authHeader={}, hasToken={}", traceId, ApplicationUtils.hideValue(authHeader),
             (StringUtils.hasText(authHeader) ? authHeader.startsWith(TOKEN_PREFIX) : false));
       }
 
@@ -51,7 +51,7 @@ public class SecurityContextRepository implements ServerSecurityContextRepositor
         return authenticationManager.authenticate(authentication).map(auth -> new SecurityContextImpl(auth));
       } else {
         if (logger.isDebugEnabled()) {
-          logger.debug("[save:{}] Could not find token, will ignore the header", traceId);
+          logger.debug("[save]{} Could not find token, will ignore the header", traceId);
         }
         return Mono.empty();
       }

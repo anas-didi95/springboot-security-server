@@ -37,12 +37,12 @@ class UserServiceBean implements UserService {
     vo.setVersion(0);
 
     if (logger.isDebugEnabled()) {
-      logger.debug("[create:{}] {}", dto.traceId, vo);
+      logger.debug("[create]{} {}", dto.traceId, vo);
     }
 
     return Mono.just(vo).map(userRepository::save).doOnError(e -> {
-      logger.error("[create:{}] {}", dto.traceId, e.getMessage());
-      logger.error("[create:{}] {}", dto.traceId, vo);
+      logger.error("[create]{} {}", dto.traceId, e.getMessage());
+      logger.error("[create]{} {}", dto.traceId, vo);
       e.addSuppressed(userException.throwUserCreationFailed(dto, e.getMessage()));
     }).map(result -> result.getId());
   }
@@ -54,7 +54,7 @@ class UserServiceBean implements UserService {
       Optional<UserVO> result = userRepository.findById(dto.id);
 
       if (logger.isDebugEnabled()) {
-        logger.debug("[update:{}] id={}, isPresent={}", dto.traceId, dto.id, result.isPresent());
+        logger.debug("[update]{} id={}, isPresent={}", dto.traceId, dto.id, result.isPresent());
       }
 
       if (result.isPresent()) {
@@ -62,12 +62,12 @@ class UserServiceBean implements UserService {
         if (vo.getVersion() == dto.version) {
           return Mono.just(vo);
         } else {
-          logger.error("[update:{}] id={}, dto.version={}, vo.version={}", dto.traceId, dto.id, dto.version,
+          logger.error("[update]{} id={}, dto.version={}, vo.version={}", dto.traceId, dto.id, dto.version,
               vo.getVersion());
           return Mono.error(userException.throwVersionNotMatched(vo, dto));
         }
       } else {
-        logger.error("[update:{}] id={}, isPresent={}", dto.traceId, dto.id, result.isPresent());
+        logger.error("[update]{} id={}, isPresent={}", dto.traceId, dto.id, result.isPresent());
         return Mono.error(userException.throwUserNotFound(dto));
       }
     }).map(dbVO -> {
@@ -77,7 +77,7 @@ class UserServiceBean implements UserService {
       reqVO.setVersion(dbVO.getVersion() + 1);
 
       if (logger.isDebugEnabled()) {
-        logger.debug("[update:{}] {}", dto.traceId, reqVO);
+        logger.debug("[update]{} {}", dto.traceId, reqVO);
       }
 
       return reqVO;
@@ -90,7 +90,7 @@ class UserServiceBean implements UserService {
       Optional<UserVO> result = userRepository.findById(dto.id);
 
       if (logger.isDebugEnabled()) {
-        logger.debug("[delete:{}] id={}, isPresent={}", dto.traceId, dto.id, result.isPresent());
+        logger.debug("[delete]{} id={}, isPresent={}", dto.traceId, dto.id, result.isPresent());
       }
 
       if (result.isPresent()) {
@@ -98,12 +98,12 @@ class UserServiceBean implements UserService {
         if (vo.getVersion() == dto.version) {
           return Mono.just(result.get());
         } else {
-          logger.error("[delete:{}] id={}, dto.version={}, vo.version={}", dto.traceId, dto.id, dto.version,
+          logger.error("[delete]{} id={}, dto.version={}, vo.version={}", dto.traceId, dto.id, dto.version,
               vo.getVersion());
           return Mono.error(userException.throwVersionNotMatched(vo, dto));
         }
       } else {
-        logger.error("[delete:{}] id={}, isPresent={}", dto.traceId, dto.id, result.isPresent());
+        logger.error("[delete]{} id={}, isPresent={}", dto.traceId, dto.id, result.isPresent());
         return Mono.error(userException.throwUserNotFound(dto));
       }
     }).map(vo -> {

@@ -41,8 +41,8 @@ public class SecurityConfig {
           exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
         })).and().csrf().disable().authenticationManager(authenticationManager)
         .securityContextRepository(securityContextRepository).authorizeExchange().pathMatchers(patterns).permitAll()
-        .anyExchange().authenticated().and().addFilterAfter(requestTraceIdFilter, SecurityWebFiltersOrder.FIRST)
-        .build();
+        .anyExchange().authenticated().and()
+        .addFilterBefore(requestTraceIdFilter, SecurityWebFiltersOrder.AUTHENTICATION).build();
   }
 
   @Bean
