@@ -31,6 +31,7 @@ public class TestUtils {
     Map<String, Object> responseBody = response.expectBody(Map.class).returnResult().getResponseBody();
     Assertions.assertEquals(expectedCode, responseBody.get("code"));
     Assertions.assertEquals(expectedMessage, responseBody.get("message"));
+    Assertions.assertNotNull(responseBody.get("traceId"));
 
     if (expectedError != null) {
       List<String> errorList = (List<String>) responseBody.get("errors");
@@ -49,7 +50,7 @@ public class TestUtils {
   }
 
   public static String getAccessToken(TokenProvider tokenProvider) {
-    return tokenProvider.generateToken("UNITTEST", Arrays.asList("ADMIN"));
+    return tokenProvider.generateToken("UNITTEST", Arrays.asList("ADMIN"), null);
   }
 
   public static UserVO generateUserVO() {

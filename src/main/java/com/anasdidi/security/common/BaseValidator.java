@@ -50,11 +50,12 @@ public abstract class BaseValidator<T extends BaseDTO> {
     }
 
     if (errorList == null) {
-      logger.warn("[validate:{}] action={}, vo={}", dto.sessionId, action, dto);
-      logger.warn("[validate:{}] Validation not implemented!", dto.sessionId);
+      logger.warn("[validate]{} action={}, vo={}", dto.traceId, action, dto);
+      logger.warn("[validate]{} Validation not implemented!", dto.traceId);
     } else if (!errorList.isEmpty()) {
-      logger.error("[validate:{}] validate={}, {}", dto.sessionId, action, dto.toString());
-      return Mono.error(new ApplicationException(ERROR_CODE, message.getErrorMessage(ERROR_CODE), errorList));
+      logger.error("[validate]{} validate={}, {}", dto.traceId, action, dto.toString());
+      return Mono
+          .error(new ApplicationException(ERROR_CODE, message.getErrorMessage(ERROR_CODE), dto.traceId, errorList));
     }
 
     return Mono.just(dto);

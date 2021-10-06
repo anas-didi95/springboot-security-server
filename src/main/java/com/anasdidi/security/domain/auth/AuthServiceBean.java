@@ -3,6 +3,7 @@ package com.anasdidi.security.domain.auth;
 import java.util.Arrays;
 import java.util.List;
 
+import com.anasdidi.security.common.ApplicationUtils;
 import com.anasdidi.security.config.TokenProvider;
 import com.anasdidi.security.domain.user.UserRepository;
 import com.anasdidi.security.domain.user.UserVO;
@@ -39,26 +40,26 @@ class AuthServiceBean implements AuthService {
       List<UserVO> resultList = userRepository.findByUsername(dto.username);
 
       if (logger.isDebugEnabled()) {
-        logger.debug("[login:{}] dto.username={}, resultList.size={}", dto.sessionId, dto.username,
+        logger.debug("[login]{} dto.username={}, resultList.size={}", dto.traceId, dto.username,
             (resultList != null ? resultList.size() : -1));
       }
 
       if (resultList != null && !resultList.isEmpty()) {
         UserVO vo = resultList.get(0);
         if (passwordEncoder.matches(dto.password, vo.getPassword())) {
-          String accessToken = tokenProvider.generateToken(vo.getId(), Arrays.asList("ADMIN"));
+          String accessToken = tokenProvider.generateToken(vo.getId(), Arrays.asList("ADMIN"), dto.traceId);
 
           if (logger.isDebugEnabled()) {
-            logger.debug("[login:{}] accessToken={}", dto.sessionId, accessToken);
+            logger.debug("[login]{} accessToken={}", dto.traceId, ApplicationUtils.hideValue(accessToken));
           }
 
           return Mono.just(accessToken);
         }
       }
 
-      logger.error("[login:{}] dto.username={}, resultList.size={}", dto.sessionId, dto.username,
+      logger.error("[login]{} dto.username={}, resultList.size={}", dto.traceId, dto.username,
           (resultList != null ? resultList.size() : -1));
-      return Mono.error(authException.throwInvalidCredentials());
+      return Mono.error(authException.throwInvalidCredentials(dto));
     });
   }
 }

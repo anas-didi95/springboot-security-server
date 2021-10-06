@@ -24,77 +24,82 @@ public abstract class BaseHandler {
   protected Mono<ServerResponse> sendResponse(Mono<Map<String, Object>> subscriber, HttpStatus httpStatus,
       ServerRequest request) {
     final String TAG = "sendResponse";
+    return request.session().flatMap(session -> {
+      String traceId = session.getAttribute("traceId");
+      return subscriber.log(TAG).flatMap(responseBody -> {
+        logResponseStatus(TAG, traceId, true, httpStatus);
+        return ServerResponse.status(httpStatus).bodyValue(responseBody);
+      }).onErrorResume(e -> {
+        Map<String, Object> responseBody = new HashMap<>();
+        ApplicationException ex = null;
 
-    return subscriber.log(TAG).flatMap(responseBody -> {
-      logResponseStatus(request, TAG, true, httpStatus);
-      return ServerResponse.status(httpStatus).bodyValue(responseBody);
-    }).onErrorResume(e -> {
-      Map<String, Object> responseBody = new HashMap<>();
-      ApplicationException ex = null;
-
-      if (e instanceof ApplicationException) {
-        ex = (ApplicationException) e;
-      } else if (e.getSuppressed().length > 0) {
-        Optional<Throwable> ee = Arrays.stream(e.getSuppressed()).filter(t -> t instanceof ApplicationException)
-            .findFirst();
-        if (ee.isPresent()) {
-          ex = (ApplicationException) ee.get();
+        if (e instanceof ApplicationException) {
+          ex = (ApplicationException) e;
+        } else if (e.getSuppressed().length > 0) {
+          Optional<Throwable> ee = Arrays.stream(e.getSuppressed()).filter(t -> t instanceof ApplicationException)
+              .findFirst();
+          if (ee.isPresent()) {
+            ex = (ApplicationException) ee.get();
+          }
         }
-      }
 
-      if (ex != null) {
-        responseBody.put("code", ex.getCode());
-        responseBody.put("message", ex.getMessage());
-        responseBody.put("errors", ex.getErrorList());
-      } else {
-        responseBody.put("message", e.getMessage());
-      }
+        if (ex != null) {
+          responseBody.put("code", ex.getCode());
+          responseBody.put("message", ex.getMessage());
+          responseBody.put("traceId", ex.getTraceId());
+          responseBody.put("errors", ex.getErrorList());
+        } else {
+          responseBody.put("message", e.getMessage());
+        }
 
-      logResponseStatus(request, TAG, false, httpStatus, (String) responseBody.get("code"),
-          (String) responseBody.get("message"));
-      return ServerResponse.status(HttpStatus.BAD_REQUEST).bodyValue(responseBody);
+        logResponseStatus(TAG, traceId, false, httpStatus, (String) responseBody.get("code"),
+            (String) responseBody.get("message"));
+        return ServerResponse.status(HttpStatus.BAD_REQUEST).bodyValue(responseBody);
+      });
     });
   }
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
   protected Mono<Map<String, Object>> getRequestBody(ServerRequest request, String... keys) {
-    Mono<Map> requestBody = request.bodyToMono(Map.class);
-    if (keys != null && keys.length > 0) {
-      requestBody = requestBody
-          .switchIfEmpty(Mono.defer(() -> Mono.error(new ApplicationException(ERROR_REQUEST_BODY_EMPTY,
-              message.getErrorMessage(ERROR_REQUEST_BODY_EMPTY), "Required keys: " + String.join(",", keys)))));
-    } else {
-      requestBody = requestBody.defaultIfEmpty(new HashMap<>());
-    }
+    return getSessionData(request).flatMap(sessionMap -> {
+      Mono<Map> requestBody = request.bodyToMono(Map.class);
+      String traceId = (String) sessionMap.get("traceId");
 
-    return Mono.zip(getSessionData(request), requestBody, (sessionMap, requestMap) -> {
-      Map<String, Object> map = new HashMap<>();
-      map.putAll(sessionMap);
-      map.putAll(requestMap);
-      return map;
+      if (keys != null && keys.length > 0) {
+        requestBody = requestBody.switchIfEmpty(Mono.defer(() -> Mono
+            .error(new ApplicationException(ERROR_REQUEST_BODY_EMPTY, message.getErrorMessage(ERROR_REQUEST_BODY_EMPTY),
+                traceId, "Required keys: " + String.join(",", keys)))));
+      } else {
+        requestBody = requestBody.defaultIfEmpty(new HashMap<>());
+      }
+
+      return requestBody.map(requestMap -> {
+        Map<String, Object> map = new HashMap<>();
+        map.putAll(sessionMap);
+        map.putAll(requestMap);
+        return map;
+      });
     });
   }
 
   private Mono<Map<String, Object>> getSessionData(ServerRequest request) {
     return request.session().map(s -> {
       Map<String, Object> map = new HashMap<>();
-      map.put("sessionId", ApplicationUtils.getFormattedUUID(s.getId()));
+      map.put("traceId", s.getAttribute("traceId"));
       return map;
     });
   }
 
-  private void logResponseStatus(ServerRequest request, String tag, boolean isSuccess, HttpStatus httpStatus) {
-    logResponseStatus(request, tag, isSuccess, httpStatus, null, null);
+  private void logResponseStatus(String tag, String traceId, boolean isSuccess, HttpStatus httpStatus) {
+    logResponseStatus(tag, traceId, isSuccess, httpStatus, null, null);
   }
 
-  private void logResponseStatus(ServerRequest request, String tag, boolean isSuccess, HttpStatus httpStatus,
-      String code, String message) {
+  private void logResponseStatus(String tag, String traceId, boolean isSuccess, HttpStatus httpStatus, String code,
+      String message) {
     if (isSuccess) {
-      getSessionData(request)
-          .subscribe(map -> logger.info("[{}:{}] onSuccess : httpStatus={}", tag, map.get("sessionId"), httpStatus));
+      logger.info("[{}]{} onSuccess : httpStatus={}", tag, traceId, httpStatus);
     } else {
-      getSessionData(request).subscribe(
-          map -> logger.error("[{}:{}] onError : code={}, message={}", tag, map.get("sessionId"), code, message));
+      logger.error("[{}]{} onError : code={}, message={}", tag, traceId, code, message);
     }
   }
 }

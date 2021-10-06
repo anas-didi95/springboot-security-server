@@ -14,8 +14,8 @@ final class AuthException {
     this.message = message;
   }
 
-  ApplicationException throwInvalidCredentials() {
+  ApplicationException throwInvalidCredentials(AuthDTO dto) {
     return new ApplicationException(AuthConstants.ERROR_INVALID_CREDENTIALS,
-        message.getErrorMessage(AuthConstants.ERROR_INVALID_CREDENTIALS), "Wrong username/password");
+        message.getErrorMessage(AuthConstants.ERROR_INVALID_CREDENTIALS), dto.traceId, "Wrong username/password");
   }
 }

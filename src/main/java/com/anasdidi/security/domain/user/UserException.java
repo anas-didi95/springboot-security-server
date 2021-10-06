@@ -14,19 +14,19 @@ final class UserException {
     this.message = message;
   }
 
-  ApplicationException throwUserCreationFailed(String errorMessage) {
+  ApplicationException throwUserCreationFailed(UserDTO dto, String errorMessage) {
     return new ApplicationException(UserConstants.ERROR_CREATE, message.getErrorMessage(UserConstants.ERROR_CREATE),
-        errorMessage);
+        dto.traceId, errorMessage);
   }
 
   ApplicationException throwUserNotFound(UserDTO dto) {
     return new ApplicationException(UserConstants.ERROR_NOT_FOUND,
-        message.getErrorMessage(UserConstants.ERROR_NOT_FOUND), "Failed to find user with id: " + dto.id);
+        message.getErrorMessage(UserConstants.ERROR_NOT_FOUND), dto.traceId, "Failed to find user with id: " + dto.id);
   }
 
-  ApplicationException throwVersionNotMatched(UserVO vo) {
+  ApplicationException throwVersionNotMatched(UserVO vo, UserDTO dto) {
     return new ApplicationException(UserConstants.ERROR_VERSION_NOT_MATCHED,
-        message.getErrorMessage(UserConstants.ERROR_VERSION_NOT_MATCHED),
+        message.getErrorMessage(UserConstants.ERROR_VERSION_NOT_MATCHED), dto.traceId,
         "Requested user version not matched with current version: " + vo.getVersion());
   }
 }

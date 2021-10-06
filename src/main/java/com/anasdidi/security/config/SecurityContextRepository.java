@@ -1,10 +1,11 @@
 package com.anasdidi.security.config;
 
+import com.anasdidi.security.common.ApplicationUtils;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -35,23 +36,25 @@ public class SecurityContextRepository implements ServerSecurityContextRepositor
 
   @Override
   public Mono<SecurityContext> load(ServerWebExchange exchange) {
-    ServerHttpRequest request = exchange.getRequest();
-    String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-    String authToken = null;
+    return exchange.getSession().flatMap(session -> {
+      String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+      String traceId = session.getAttribute("traceId");
 
-    if (StringUtils.hasText(authHeader) && authHeader.startsWith(TOKEN_PREFIX)) {
-      authToken = authHeader.replace(TOKEN_PREFIX, "").trim();
-    } else {
       if (logger.isDebugEnabled()) {
-        logger.debug("[save] Could not find token, will ignore the header");
+        logger.debug("[load]{} authHeader={}, hasToken={}", traceId, ApplicationUtils.hideValue(authHeader),
+            (StringUtils.hasText(authHeader) ? authHeader.startsWith(TOKEN_PREFIX) : false));
       }
-    }
 
-    if (StringUtils.hasText(authToken)) {
-      Authentication authentication = new UsernamePasswordAuthenticationToken(authToken, authToken);
-      return authenticationManager.authenticate(authentication).map(auth -> new SecurityContextImpl(auth));
-    } else {
-      return Mono.empty();
-    }
+      if (StringUtils.hasText(authHeader) && authHeader.startsWith(TOKEN_PREFIX)) {
+        String authToken = authHeader.replace(TOKEN_PREFIX, "").trim();
+        Authentication authentication = new UsernamePasswordAuthenticationToken(authToken, authToken);
+        return authenticationManager.authenticate(authentication).map(auth -> new SecurityContextImpl(auth));
+      } else {
+        if (logger.isDebugEnabled()) {
+          logger.debug("[save]{} Could not find token, will ignore the header", traceId);
+        }
+        return Mono.empty();
+      }
+    });
   }
 }

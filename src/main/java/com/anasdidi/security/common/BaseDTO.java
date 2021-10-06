@@ -2,9 +2,9 @@ package com.anasdidi.security.common;
 
 public abstract class BaseDTO {
 
-  public final String sessionId;
+  public final String traceId;
 
-  public BaseDTO(String sessionId) {
-    this.sessionId = sessionId;
+  public BaseDTO(String traceId) {
+    this.traceId = traceId;
   }
 }
