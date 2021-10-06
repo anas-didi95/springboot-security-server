@@ -39,7 +39,7 @@ class AuthServiceBean implements AuthService {
       List<UserVO> resultList = userRepository.findByUsername(dto.username);
 
       if (logger.isDebugEnabled()) {
-        logger.debug("[login:{}] dto.username={}, resultList.size={}", dto.sessionId, dto.username,
+        logger.debug("[login:{}] dto.username={}, resultList.size={}", dto.traceId, dto.username,
             (resultList != null ? resultList.size() : -1));
       }
 
@@ -49,14 +49,14 @@ class AuthServiceBean implements AuthService {
           String accessToken = tokenProvider.generateToken(vo.getId(), Arrays.asList("ADMIN"));
 
           if (logger.isDebugEnabled()) {
-            logger.debug("[login:{}] accessToken={}", dto.sessionId, accessToken);
+            logger.debug("[login:{}] accessToken={}", dto.traceId, accessToken);
           }
 
           return Mono.just(accessToken);
         }
       }
 
-      logger.error("[login:{}] dto.username={}, resultList.size={}", dto.sessionId, dto.username,
+      logger.error("[login:{}] dto.username={}, resultList.size={}", dto.traceId, dto.username,
           (resultList != null ? resultList.size() : -1));
       return Mono.error(authException.throwInvalidCredentials());
     });

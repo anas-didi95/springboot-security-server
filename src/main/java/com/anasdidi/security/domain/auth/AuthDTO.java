@@ -15,11 +15,11 @@ class AuthDTO extends BaseDTO {
   }
 
   static AuthDTO fromMap(Map<String, Object> map) {
-    String sessionId = (String) map.get("sessionId");
+    String traceId = (String) map.get("traceId");
     String username = (String) map.get("username");
     String password = (String) map.get("password");
 
-    return new AuthDTO(sessionId, username, password);
+    return new AuthDTO(traceId, username, password);
   }
 
   @Override

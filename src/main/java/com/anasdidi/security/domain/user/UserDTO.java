@@ -14,8 +14,8 @@ class UserDTO extends BaseDTO {
   final Date lastModifiedDate;
   final Integer version;
 
-  private UserDTO(String sessionId, String id, String username, String password, String fullName,
-      String email, Date lastModifiedDate, Integer version) {
+  private UserDTO(String sessionId, String id, String username, String password, String fullName, String email,
+      Date lastModifiedDate, Integer version) {
     super(sessionId);
     this.id = id;
     this.username = username;
@@ -27,7 +27,7 @@ class UserDTO extends BaseDTO {
   }
 
   static UserDTO fromMap(Map<String, Object> map) {
-    String sessionId = (String) map.get("sessionId");
+    String traceId = (String) map.get("traceId");
     String id = (String) map.get("id");
     String username = (String) map.get("username");
     String password = (String) map.get("password");
@@ -36,8 +36,7 @@ class UserDTO extends BaseDTO {
     Date lastModifiedDate = (Date) map.get("lastModifiedDate");
     Integer version = (Integer) map.get("version");
 
-    return new UserDTO(sessionId, id, username, password, fullName, email, lastModifiedDate,
-        version);
+    return new UserDTO(traceId, id, username, password, fullName, email, lastModifiedDate, version);
   }
 
   UserVO toVO() {
