@@ -57,8 +57,8 @@ public class TokenProvider {
     return expiration != null && expiration.before(new Date());
   }
 
-  public String generateToken(String userId, List<String> permissionList) {
-    return doGenerateToken(userId, permissionList);
+  public String generateToken(String userId, List<String> permissionList, String traceId) {
+    return doGenerateToken(userId, permissionList, traceId);
   }
 
   private <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
@@ -70,13 +70,14 @@ public class TokenProvider {
     return Jwts.parser().requireIssuer(ISSUER).setSigningKey(SECRET).parseClaimsJws(token).getBody();
   }
 
-  private String doGenerateToken(String subject, List<String> permissionList) {
+  private String doGenerateToken(String subject, List<String> permissionList, String traceId) {
     Map<String, Object> claims = new HashMap<>();
     claims.put(PERMISSIONS_KEY, permissionList);
 
     if (logger.isDebugEnabled()) {
-      logger.debug("[doGenerateToken] subject={}, secret={}, issuer={}, accessTokenValidityMinutes={}", subject,
-          ApplicationUtils.hideValue(SECRET), ApplicationUtils.hideValue(ISSUER), ACCESS_TOKEN_VALIDITY_MINUTES);
+      logger.debug("[doGenerateToken:{}] subject={}, secret={}, issuer={}, accessTokenValidityMinutes={}", traceId,
+          subject, ApplicationUtils.hideValue(SECRET), ApplicationUtils.hideValue(ISSUER),
+          ACCESS_TOKEN_VALIDITY_MINUTES);
     }
 
     return Jwts.builder().setClaims(claims).setSubject(subject).setIssuer(ISSUER)

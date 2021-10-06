@@ -32,7 +32,7 @@ public class SecurityConfig {
 
   @Bean
   public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-    String[] patterns = new String[] { "/auth/**" };
+    String[] patterns = new String[] { "/auth/login/**" };
 
     return http.cors().disable().exceptionHandling()
         .authenticationEntryPoint((exchange, exception) -> Mono.fromRunnable(() -> {

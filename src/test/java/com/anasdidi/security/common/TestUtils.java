@@ -49,7 +49,7 @@ public class TestUtils {
   }
 
   public static String getAccessToken(TokenProvider tokenProvider) {
-    return tokenProvider.generateToken("UNITTEST", Arrays.asList("ADMIN"));
+    return tokenProvider.generateToken("UNITTEST", Arrays.asList("ADMIN"), null);
   }
 
   public static UserVO generateUserVO() {

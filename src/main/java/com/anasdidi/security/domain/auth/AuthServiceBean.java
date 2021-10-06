@@ -3,6 +3,7 @@ package com.anasdidi.security.domain.auth;
 import java.util.Arrays;
 import java.util.List;
 
+import com.anasdidi.security.common.ApplicationUtils;
 import com.anasdidi.security.config.TokenProvider;
 import com.anasdidi.security.domain.user.UserRepository;
 import com.anasdidi.security.domain.user.UserVO;
@@ -46,10 +47,10 @@ class AuthServiceBean implements AuthService {
       if (resultList != null && !resultList.isEmpty()) {
         UserVO vo = resultList.get(0);
         if (passwordEncoder.matches(dto.password, vo.getPassword())) {
-          String accessToken = tokenProvider.generateToken(vo.getId(), Arrays.asList("ADMIN"));
+          String accessToken = tokenProvider.generateToken(vo.getId(), Arrays.asList("ADMIN"), dto.traceId);
 
           if (logger.isDebugEnabled()) {
-            logger.debug("[login:{}] accessToken={}", dto.traceId, accessToken);
+            logger.debug("[login:{}] accessToken={}", dto.traceId, ApplicationUtils.hideValue(accessToken));
           }
 
           return Mono.just(accessToken);

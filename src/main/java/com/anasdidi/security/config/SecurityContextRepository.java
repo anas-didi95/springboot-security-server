@@ -39,24 +39,20 @@ public class SecurityContextRepository implements ServerSecurityContextRepositor
     return exchange.getSession().flatMap(session -> {
       String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
       String traceId = session.getAttribute("traceId");
-      String authToken = null;
 
       if (logger.isDebugEnabled()) {
-        logger.debug("[load:{}] authHeader={}", traceId, ApplicationUtils.hideValue(authHeader));
+        logger.debug("[load:{}] authHeader={}, hasToken={}", traceId, ApplicationUtils.hideValue(authHeader),
+            (StringUtils.hasText(authHeader) ? authHeader.startsWith(TOKEN_PREFIX) : false));
       }
 
       if (StringUtils.hasText(authHeader) && authHeader.startsWith(TOKEN_PREFIX)) {
-        authToken = authHeader.replace(TOKEN_PREFIX, "").trim();
-      } else {
-        if (logger.isDebugEnabled()) {
-          logger.debug("[save] Could not find token, will ignore the header");
-        }
-      }
-
-      if (StringUtils.hasText(authToken)) {
+        String authToken = authHeader.replace(TOKEN_PREFIX, "").trim();
         Authentication authentication = new UsernamePasswordAuthenticationToken(authToken, authToken);
         return authenticationManager.authenticate(authentication).map(auth -> new SecurityContextImpl(auth));
       } else {
+        if (logger.isDebugEnabled()) {
+          logger.debug("[save:{}] Could not find token, will ignore the header", traceId);
+        }
         return Mono.empty();
       }
     });
