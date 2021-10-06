@@ -54,7 +54,8 @@ public abstract class BaseValidator<T extends BaseDTO> {
       logger.warn("[validate:{}] Validation not implemented!", dto.traceId);
     } else if (!errorList.isEmpty()) {
       logger.error("[validate:{}] validate={}, {}", dto.traceId, action, dto.toString());
-      return Mono.error(new ApplicationException(ERROR_CODE, message.getErrorMessage(ERROR_CODE), errorList));
+      return Mono
+          .error(new ApplicationException(ERROR_CODE, message.getErrorMessage(ERROR_CODE), dto.traceId, errorList));
     }
 
     return Mono.just(dto);

@@ -46,6 +46,7 @@ public abstract class BaseHandler {
         if (ex != null) {
           responseBody.put("code", ex.getCode());
           responseBody.put("message", ex.getMessage());
+          responseBody.put("traceId", ex.getTraceId());
           responseBody.put("errors", ex.getErrorList());
         } else {
           responseBody.put("message", e.getMessage());
@@ -60,20 +61,24 @@ public abstract class BaseHandler {
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
   protected Mono<Map<String, Object>> getRequestBody(ServerRequest request, String... keys) {
-    Mono<Map> requestBody = request.bodyToMono(Map.class);
-    if (keys != null && keys.length > 0) {
-      requestBody = requestBody
-          .switchIfEmpty(Mono.defer(() -> Mono.error(new ApplicationException(ERROR_REQUEST_BODY_EMPTY,
-              message.getErrorMessage(ERROR_REQUEST_BODY_EMPTY), "Required keys: " + String.join(",", keys)))));
-    } else {
-      requestBody = requestBody.defaultIfEmpty(new HashMap<>());
-    }
+    return getSessionData(request).flatMap(sessionMap -> {
+      Mono<Map> requestBody = request.bodyToMono(Map.class);
+      String traceId = (String) sessionMap.get("traceId");
 
-    return Mono.zip(getSessionData(request), requestBody, (sessionMap, requestMap) -> {
-      Map<String, Object> map = new HashMap<>();
-      map.putAll(sessionMap);
-      map.putAll(requestMap);
-      return map;
+      if (keys != null && keys.length > 0) {
+        requestBody = requestBody.switchIfEmpty(Mono.defer(() -> Mono
+            .error(new ApplicationException(ERROR_REQUEST_BODY_EMPTY, message.getErrorMessage(ERROR_REQUEST_BODY_EMPTY),
+                traceId, "Required keys: " + String.join(",", keys)))));
+      } else {
+        requestBody = requestBody.defaultIfEmpty(new HashMap<>());
+      }
+
+      return requestBody.map(requestMap -> {
+        Map<String, Object> map = new HashMap<>();
+        map.putAll(sessionMap);
+        map.putAll(requestMap);
+        return map;
+      });
     });
   }
 

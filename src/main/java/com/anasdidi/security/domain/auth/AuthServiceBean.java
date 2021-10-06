@@ -59,7 +59,7 @@ class AuthServiceBean implements AuthService {
 
       logger.error("[login:{}] dto.username={}, resultList.size={}", dto.traceId, dto.username,
           (resultList != null ? resultList.size() : -1));
-      return Mono.error(authException.throwInvalidCredentials());
+      return Mono.error(authException.throwInvalidCredentials(dto));
     });
   }
 }
