@@ -8,8 +8,8 @@ class AuthDTO extends BaseDTO {
   final String username;
   final String password;
 
-  public AuthDTO(String sessionId, String username, String password) {
-    super(sessionId);
+  public AuthDTO(String traceId, String username, String password) {
+    super(traceId);
     this.username = username;
     this.password = password;
   }

@@ -14,9 +14,9 @@ class UserDTO extends BaseDTO {
   final Date lastModifiedDate;
   final Integer version;
 
-  private UserDTO(String sessionId, String id, String username, String password, String fullName, String email,
+  private UserDTO(String traceId, String id, String username, String password, String fullName, String email,
       Date lastModifiedDate, Integer version) {
-    super(sessionId);
+    super(traceId);
     this.id = id;
     this.username = username;
     this.password = password;

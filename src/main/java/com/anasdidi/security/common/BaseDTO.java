@@ -4,7 +4,7 @@ public abstract class BaseDTO {
 
   public final String traceId;
 
-  public BaseDTO(String sessionId) {
-    this.traceId = sessionId;
+  public BaseDTO(String traceId) {
+    this.traceId = traceId;
   }
 }
