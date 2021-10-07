@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.Optional;
 
 import com.anasdidi.security.common.ApplicationUtils;
+import com.anasdidi.security.repository.UserRepository;
 import com.anasdidi.security.vo.UserVO;
 
 import org.apache.logging.log4j.LogManager;

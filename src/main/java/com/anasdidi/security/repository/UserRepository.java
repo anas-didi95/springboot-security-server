@@ -1,4 +1,4 @@
-package com.anasdidi.security.domain.user;
+package com.anasdidi.security.repository;
 
 import java.util.List;
 
