@@ -5,7 +5,7 @@ import java.util.Map;
 import com.anasdidi.security.common.BaseDTO;
 import com.anasdidi.security.vo.UserVO;
 
-class UserDTO extends BaseDTO {
+final class UserDTO extends BaseDTO {
 
   final String id;
   final String username;

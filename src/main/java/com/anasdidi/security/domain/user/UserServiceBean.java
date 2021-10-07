@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
-class UserServiceBean implements UserService {
+final class UserServiceBean implements UserService {
 
   private static final Logger logger = LogManager.getLogger(UserServiceBean.class);
   private final BCryptPasswordEncoder passwordEncoder;

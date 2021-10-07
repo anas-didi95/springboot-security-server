@@ -3,7 +3,7 @@ package com.anasdidi.security.domain.auth;
 import java.util.Map;
 import com.anasdidi.security.common.BaseDTO;
 
-class AuthDTO extends BaseDTO {
+final class AuthDTO extends BaseDTO {
 
   final String username;
   final String password;

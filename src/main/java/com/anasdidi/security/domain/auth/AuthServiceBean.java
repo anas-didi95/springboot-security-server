@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
-class AuthServiceBean implements AuthService {
+final class AuthServiceBean implements AuthService {
 
   private static final Logger logger = LogManager.getLogger(AuthServiceBean.class);
   private final TokenProvider tokenProvider;

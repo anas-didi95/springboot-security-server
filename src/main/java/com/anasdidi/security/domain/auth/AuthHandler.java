@@ -15,7 +15,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
 @Component
-class AuthHandler extends BaseHandler {
+final class AuthHandler extends BaseHandler {
 
   private final AuthService authService;
   private final AuthValidator authValidator;
