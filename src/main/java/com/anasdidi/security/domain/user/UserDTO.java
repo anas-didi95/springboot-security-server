@@ -3,6 +3,7 @@ package com.anasdidi.security.domain.user;
 import java.util.Date;
 import java.util.Map;
 import com.anasdidi.security.common.BaseDTO;
+import com.anasdidi.security.vo.UserVO;
 
 class UserDTO extends BaseDTO {
 
