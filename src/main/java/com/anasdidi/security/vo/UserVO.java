@@ -1,4 +1,4 @@
-package com.anasdidi.security.domain.user;
+package com.anasdidi.security.vo;
 
 import java.util.Date;
 

@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-class UserValidator extends BaseValidator<UserDTO> {
+final class UserValidator extends BaseValidator<UserDTO> {
 
   @Autowired
   public UserValidator(ApplicationMessage message) {

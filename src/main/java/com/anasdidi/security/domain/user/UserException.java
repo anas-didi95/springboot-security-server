@@ -2,6 +2,7 @@ package com.anasdidi.security.domain.user;
 
 import com.anasdidi.security.common.ApplicationException;
 import com.anasdidi.security.common.ApplicationMessage;
+import com.anasdidi.security.vo.UserVO;
 
 import org.springframework.stereotype.Component;
 

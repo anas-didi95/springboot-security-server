@@ -12,7 +12,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
 @Component
-class UserHandler extends BaseHandler {
+final class UserHandler extends BaseHandler {
 
   private final UserValidator userValidator;
   private final UserService userService;

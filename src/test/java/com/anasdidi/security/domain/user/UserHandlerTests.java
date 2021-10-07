@@ -6,6 +6,8 @@ import java.util.Optional;
 
 import com.anasdidi.security.common.TestUtils;
 import com.anasdidi.security.config.TokenProvider;
+import com.anasdidi.security.repository.UserRepository;
+import com.anasdidi.security.vo.UserVO;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

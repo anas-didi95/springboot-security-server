@@ -5,8 +5,8 @@ import java.util.List;
 
 import com.anasdidi.security.common.ApplicationUtils;
 import com.anasdidi.security.config.TokenProvider;
-import com.anasdidi.security.domain.user.UserRepository;
-import com.anasdidi.security.domain.user.UserVO;
+import com.anasdidi.security.repository.UserRepository;
+import com.anasdidi.security.vo.UserVO;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
-class AuthServiceBean implements AuthService {
+final class AuthServiceBean implements AuthService {
 
   private static final Logger logger = LogManager.getLogger(AuthServiceBean.class);
   private final TokenProvider tokenProvider;

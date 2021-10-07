@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.Optional;
 
 import com.anasdidi.security.common.ApplicationUtils;
+import com.anasdidi.security.repository.UserRepository;
+import com.anasdidi.security.vo.UserVO;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,7 +16,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
-class UserServiceBean implements UserService {
+final class UserServiceBean implements UserService {
 
   private static final Logger logger = LogManager.getLogger(UserServiceBean.class);
   private final BCryptPasswordEncoder passwordEncoder;
