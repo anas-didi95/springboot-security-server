@@ -76,9 +76,10 @@ final class AuthServiceBean implements AuthService {
       if (result.isPresent()) {
         UserVO vo = result.get();
         return Mono.just(AuthDTO.fromVO(vo, dto.traceId));
+      } else {
+        logger.error("[check]{} userId={}, result.isPresent={}", dto.traceId, dto.principal, result.isPresent());
+        return Mono.error(authException.throwUserNotFound(dto));
       }
-
-      return null;
     });
   }
 }

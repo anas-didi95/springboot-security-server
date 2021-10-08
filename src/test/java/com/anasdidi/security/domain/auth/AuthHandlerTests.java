@@ -121,4 +121,15 @@ public class AuthHandlerTests {
     Assertions.assertEquals(userVO.getUsername(), responseBody.get("username"));
     Assertions.assertEquals(userVO.getFullName(), responseBody.get("fullName"));
   }
+
+  @Test
+  public void testAuthCheckUserNotFoundError() {
+    String userId = "test" + System.currentTimeMillis();
+    List<String> permissionList = Arrays.asList("ADMIN");
+
+    ResponseSpec response = TestUtils.doGet(webTestClient, "/auth/check",
+        TestUtils.getAccessToken(tokenProvider, userId, permissionList));
+    TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E202", "User not found!",
+        "Failed to find user with id: " + userId);
+  }
 }

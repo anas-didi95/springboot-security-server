@@ -18,4 +18,10 @@ final class AuthException {
     return new ApplicationException(AuthConstants.ERROR_INVALID_CREDENTIALS,
         message.getErrorMessage(AuthConstants.ERROR_INVALID_CREDENTIALS), dto.traceId, "Wrong username/password");
   }
+
+  ApplicationException throwUserNotFound(AuthDTO dto) {
+    return new ApplicationException(AuthConstants.ERROR_USER_NOT_FOUND,
+        message.getErrorMessage(AuthConstants.ERROR_USER_NOT_FOUND), dto.traceId,
+        "Failed to find user with id: " + dto.principal);
+  }
 }
