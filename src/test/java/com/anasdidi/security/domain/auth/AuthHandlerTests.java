@@ -1,9 +1,12 @@
 package com.anasdidi.security.domain.auth;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.anasdidi.security.common.TestUtils;
+import com.anasdidi.security.config.TokenProvider;
 import com.anasdidi.security.repository.UserRepository;
 import com.anasdidi.security.vo.UserVO;
 
@@ -27,13 +30,15 @@ public class AuthHandlerTests {
 
   private final WebTestClient webTestClient;
   private final BCryptPasswordEncoder passwordEncoder;
+  private final TokenProvider tokenProvider;
   private final UserRepository userRepository;
 
   @Autowired
   public AuthHandlerTests(WebTestClient webTestClient, BCryptPasswordEncoder passwordEncoder,
-      UserRepository userRepository) {
+      TokenProvider tokenProvider, UserRepository userRepository) {
     this.webTestClient = webTestClient;
     this.passwordEncoder = passwordEncoder;
+    this.tokenProvider = tokenProvider;
     this.userRepository = userRepository;
   }
 
@@ -100,5 +105,31 @@ public class AuthHandlerTests {
         .contentType(MediaType.APPLICATION_JSON).bodyValue(requestBody).exchange()).block();
     TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E201", "Invalid credentials!",
         "Wrong username/password");
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testAuthCheckSuccess() {
+    UserVO userVO = TestUtils.generateUserVO();
+    List<String> permissionList = Arrays.asList("PERMISSION:" + System.currentTimeMillis());
+
+    ResponseSpec response = Mono.just(userRepository.save(userVO)).map(result -> result.getId()).map(userId -> TestUtils
+        .doGet(webTestClient, "/auth/check", TestUtils.getAccessToken(tokenProvider, userId, permissionList))).block();
+    response.expectStatus().isEqualTo(HttpStatus.OK);
+
+    Map<String, Object> responseBody = response.expectBody(Map.class).returnResult().getResponseBody();
+    Assertions.assertEquals(userVO.getUsername(), responseBody.get("username"));
+    Assertions.assertEquals(userVO.getFullName(), responseBody.get("fullName"));
+  }
+
+  @Test
+  public void testAuthCheckUserNotFoundError() {
+    String userId = "test" + System.currentTimeMillis();
+    List<String> permissionList = Arrays.asList("ADMIN");
+
+    ResponseSpec response = TestUtils.doGet(webTestClient, "/auth/check",
+        TestUtils.getAccessToken(tokenProvider, userId, permissionList));
+    TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E202", "User not found!",
+        "Failed to find user with id: " + userId);
   }
 }

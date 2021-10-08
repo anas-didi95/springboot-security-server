@@ -4,11 +4,15 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+
 import reactor.core.publisher.Mono;
 
 public abstract class BaseHandler {
@@ -64,6 +68,7 @@ public abstract class BaseHandler {
     return getSessionData(request).flatMap(sessionMap -> {
       Mono<Map> requestBody = request.bodyToMono(Map.class);
       String traceId = (String) sessionMap.get("traceId");
+      String principal = getPrincipal();
 
       if (keys != null && keys.length > 0) {
         requestBody = requestBody.switchIfEmpty(Mono.defer(() -> Mono
@@ -77,6 +82,7 @@ public abstract class BaseHandler {
         Map<String, Object> map = new HashMap<>();
         map.putAll(sessionMap);
         map.putAll(requestMap);
+        map.put("principal", principal);
         return map;
       });
     });
@@ -88,6 +94,15 @@ public abstract class BaseHandler {
       map.put("traceId", s.getAttribute("traceId"));
       return map;
     });
+  }
+
+  private final String getPrincipal() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication != null) {
+      return (String) authentication.getPrincipal();
+    } else {
+      return null;
+    }
   }
 
   private void logResponseStatus(String tag, String traceId, boolean isSuccess, HttpStatus httpStatus) {
