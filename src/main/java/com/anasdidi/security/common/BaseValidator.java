@@ -50,7 +50,7 @@ public abstract class BaseValidator<T extends BaseDTO> {
     }
 
     if (errorList == null) {
-      logger.warn("[validate]{} action={}, vo={}", dto.traceId, action, dto);
+      logger.warn("[validate]{} action={}, dto={}", dto.traceId, action, dto);
       logger.warn("[validate]{} Validation not implemented!", dto.traceId);
     } else if (!errorList.isEmpty()) {
       logger.error("[validate]{} validate={}, {}", dto.traceId, action, dto.toString());
