@@ -40,12 +40,13 @@ final class AuthHandler extends BaseHandler {
   }
 
   Mono<ServerResponse> check(ServerRequest request) {
-    // Mono<Map<String, Object>> subscriber = getRequestData(request,
-    // null).map(requestBody -> {
-    // Map<String, Object> responseBody = new HashMap<>();
-    // return responseBody;
-    // });
-    Mono<Map<String, Object>> subscriber = Mono.just(new HashMap<>());
+    Mono<Map<String, Object>> subscriber = getRequestBody(request).map(map -> AuthDTO.fromMap(map))
+        .flatMap(dto -> authService.check(dto)).map(dto -> {
+          Map<String, Object> responseBody = new HashMap<>();
+          responseBody.put("username", dto.username);
+          responseBody.put("fullName", dto.fullName);
+          return responseBody;
+        });
 
     return sendResponse(subscriber, HttpStatus.OK, request);
   }
