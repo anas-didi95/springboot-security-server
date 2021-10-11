@@ -15,6 +15,7 @@
 	<description>Security project for Spring Boot</description>
 	<properties>
 		<java.version>11</java.version>
+    <jjwt.version>0.9.1</jjwt.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -32,8 +33,12 @@
     <dependency>
       <groupId>io.jsonwebtoken</groupId>
       <artifactId>jjwt</artifactId>
-      <version>0.9.1</version>
+      <version>${jjwt.version}</version>
     </dependency>
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>org.postgresql</groupId>
