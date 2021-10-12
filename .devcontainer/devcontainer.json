@@ -17,7 +17,8 @@
     "vscjava.vscode-java-pack",
     "humao.rest-client",
     "pivotal.vscode-spring-boot",
-    "GabrielBB.vscode-lombok"
+    "GabrielBB.vscode-lombok",
+    "chris-rimmer.liquibase-snippets"
   ],
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
