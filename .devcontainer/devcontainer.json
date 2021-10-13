@@ -18,7 +18,8 @@
     "humao.rest-client",
     "pivotal.vscode-spring-boot",
     "GabrielBB.vscode-lombok",
-    "chris-rimmer.liquibase-snippets"
+    "chris-rimmer.liquibase-snippets",
+    "fabianlauer.vs-code-xml-format"
   ],
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
