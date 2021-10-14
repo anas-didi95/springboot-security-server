@@ -1,5 +1,8 @@
 {
   "java.configuration.updateBuildConfiguration": "interactive",
   "java.format.settings.url": "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml",
-  "java.format.settings.profile": "GoogleStyle"
+  "java.format.settings.profile": "GoogleStyle",
+  "[xml]": {
+    "editor.formatOnSave": false
+  }
 }
