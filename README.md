@@ -23,6 +23,7 @@ Back-end service which provides security-related resources such as user and JSON
 ## Technologies
 * Spring Boot
 * PostgreSQL JDBC Driver
+* Liquibase
 
 ---
 
