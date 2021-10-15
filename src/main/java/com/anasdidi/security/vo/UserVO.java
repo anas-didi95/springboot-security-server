@@ -1,47 +1,44 @@
 package com.anasdidi.security.vo;
 
-import java.util.Date;
+import java.time.Instant;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Version;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@Entity
-@Table(name = "TBL_USER")
-@NoArgsConstructor
+@Table("TBL_USER")
 @AllArgsConstructor
 @Data
 @ToString(exclude = { "password" })
 public class UserVO {
 
   @Id
-  @Column(name = "id", unique = true, nullable = false)
+  @Column("ID")
   private String id;
 
-  @Column(name = "username", unique = true, nullable = false)
+  @Column("USERNAME")
   private String username;
 
-  @Column(name = "password", nullable = false)
+  @Column("PASSWORD")
   private String password;
 
-  @Column(name = "full_name", nullable = false)
+  @Column("FULL_NAME")
   private String fullName;
 
-  @Column(name = "email", nullable = false)
+  @Column("EMAIL")
   private String email;
 
-  @Column(name = "last_modified_dt", nullable = false)
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date lastModifiedDate;
+  @LastModifiedDate
+  @Column("LAST_MODIFIED_DT")
+  private Instant lastModifiedDate;
 
-  @Column(name = "version", nullable = false)
+  @Version
+  @Column("VERSION")
   private Integer version;
 }

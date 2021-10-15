@@ -1,14 +1,14 @@
 package com.anasdidi.security.repository;
 
-import java.util.List;
-
 import com.anasdidi.security.vo.UserVO;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.stereotype.Repository;
 
-@Repository
-public interface UserRepository extends JpaRepository<UserVO, String> {
+import reactor.core.publisher.Flux;
 
-  List<UserVO> findByUsername(String username);
+@Repository
+public interface UserRepository extends ReactiveCrudRepository<UserVO, String> {
+
+  Flux<UserVO> findByUsername(String username);
 }
