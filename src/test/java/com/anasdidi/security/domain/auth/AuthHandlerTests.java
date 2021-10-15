@@ -22,8 +22,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClient.ResponseSpec;
 
-import reactor.core.publisher.Mono;
-
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class AuthHandlerTests {
@@ -49,7 +47,7 @@ public class AuthHandlerTests {
     String password = userVO.getPassword();
     userVO.setPassword(passwordEncoder.encode(password));
 
-    ResponseSpec response = Mono.just(userRepository.save(userVO)).map(vo -> {
+    ResponseSpec response = userRepository.save(userVO).map(vo -> {
       Map<String, Object> requestBody = new HashMap<>();
       requestBody.put("username", vo.getUsername());
       requestBody.put("password", password);
@@ -96,7 +94,7 @@ public class AuthHandlerTests {
     String password = userVO.getPassword();
     userVO.setPassword(passwordEncoder.encode(password));
 
-    ResponseSpec response = Mono.just(userRepository.save(userVO)).map(vo -> {
+    ResponseSpec response = userRepository.save(userVO).map(vo -> {
       Map<String, Object> requestBody = new HashMap<>();
       requestBody.put("username", vo.getUsername());
       requestBody.put("password", "password" + System.currentTimeMillis());
@@ -113,7 +111,7 @@ public class AuthHandlerTests {
     UserVO userVO = TestUtils.generateUserVO();
     List<String> permissionList = Arrays.asList("PERMISSION:" + System.currentTimeMillis());
 
-    ResponseSpec response = Mono.just(userRepository.save(userVO)).map(result -> result.getId()).map(userId -> TestUtils
+    ResponseSpec response = userRepository.save(userVO).map(result -> result.getId()).map(userId -> TestUtils
         .doGet(webTestClient, "/auth/check", TestUtils.getAccessToken(tokenProvider, userId, permissionList))).block();
     response.expectStatus().isEqualTo(HttpStatus.OK);
 

@@ -2,7 +2,6 @@ package com.anasdidi.security.domain.user;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import com.anasdidi.security.common.TestUtils;
 import com.anasdidi.security.config.TokenProvider;
@@ -67,14 +66,13 @@ public class UserHandlerTests {
     ResponseSpec response = TestUtils.doPost(webTestClient, "/user", requestBody,
         TestUtils.getAccessToken(tokenProvider));
     response.expectStatus().isEqualTo(HttpStatus.CREATED);
-
     Map<String, Object> responseBody = response.expectBody(Map.class).returnResult().getResponseBody();
     Assertions.assertNotNull(responseBody.get("id"));
 
     String userId = (String) responseBody.get("id");
-    Optional<UserVO> userVO = userRepository.findById(userId);
-    if (userVO.isPresent()) {
-      assertVO(requestBody, userVO.get());
+    UserVO userVO = userRepository.findById(userId).block();
+    if (userVO != null) {
+      assertVO(requestBody, userVO);
     } else {
       Assertions.fail("User not found");
     }
@@ -101,9 +99,9 @@ public class UserHandlerTests {
   public void testUserCreateServiceError() {
     Map<String, Object> requestBody = generateUserMap();
 
-    ResponseSpec response = userService.create(UserDTO.fromMap(requestBody))
-        .map(id -> TestUtils.doPost(webTestClient, "/user", requestBody, TestUtils.getAccessToken(tokenProvider)))
-        .block();
+    userService.create(UserDTO.fromMap(requestBody)).block();
+    ResponseSpec response = TestUtils.doPost(webTestClient, "/user", requestBody,
+        TestUtils.getAccessToken(tokenProvider));
     TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E101", "User creation failed!");
   }
 
@@ -115,24 +113,25 @@ public class UserHandlerTests {
     String fullName = "fullName" + suffix;
     String email = "email" + suffix;
 
-    ResponseSpec response = userService.create(UserDTO.fromMap(userMap)).map(id -> {
+    String userId = userService.create(UserDTO.fromMap(userMap)).map(id -> {
       userMap.put("fullName", fullName);
       userMap.put("email", email);
       userMap.put("version", 0);
-
-      return TestUtils.doPut(webTestClient, "/user/" + id, userMap, TestUtils.getAccessToken(tokenProvider));
+      return id;
     }).block();
+    ResponseSpec response = TestUtils.doPut(webTestClient, "/user/" + userId, userMap,
+        TestUtils.getAccessToken(tokenProvider));
     response.expectStatus().isEqualTo(HttpStatus.OK);
 
     Map<String, Object> responseBody = response.expectBody(Map.class).returnResult().getResponseBody();
     Assertions.assertNotNull(responseBody.get("id"));
 
-    String userId = (String) responseBody.get("id");
-    Optional<UserVO> result = userRepository.findById(userId);
-    if (result.isPresent()) {
-      assertVO(userMap, result.get());
+    String userId2 = (String) responseBody.get("id");
+    UserVO userVO = userRepository.findById(userId2).block();
+    if (userVO != null) {
+      assertVO(userMap, userVO);
     } else {
-      Assertions.fail("User not found!");
+      Assertions.fail("User not found");
     }
   }
 
@@ -140,9 +139,9 @@ public class UserHandlerTests {
   public void testUserUpdateRequestBodyEmptyError() {
     Map<String, Object> userMap = generateUserMap();
 
-    ResponseSpec response = userService.create(UserDTO.fromMap(userMap))
-        .map(id -> TestUtils.doPut(webTestClient, "/user/" + id, null, TestUtils.getAccessToken(tokenProvider)))
-        .block();
+    String userId = userService.create(UserDTO.fromMap(userMap)).block();
+    ResponseSpec response = TestUtils.doPut(webTestClient, "/user/" + userId, null,
+        TestUtils.getAccessToken(tokenProvider));
     TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E001", "Request body is empty!",
         "Required keys: fullName,email");
   }
@@ -151,10 +150,10 @@ public class UserHandlerTests {
   public void testUserUpdateValidationError() {
     Map<String, Object> userMap = generateUserMap();
 
-    ResponseSpec response = userService.create(UserDTO.fromMap(userMap)).map(id -> {
-      userMap.clear();
-      return TestUtils.doPut(webTestClient, "/user/" + id, userMap, TestUtils.getAccessToken(tokenProvider));
-    }).block();
+    String userId = userService.create(UserDTO.fromMap(userMap)).block();
+    userMap.clear();
+    ResponseSpec response = TestUtils.doPut(webTestClient, "/user/" + userId, userMap,
+        TestUtils.getAccessToken(tokenProvider));
     TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E002", "Validation error!");
   }
 
@@ -162,11 +161,10 @@ public class UserHandlerTests {
   public void testUserUpdateUserNotFoundError() {
     Map<String, Object> userMap = generateUserMap();
 
-    ResponseSpec response = userService.create(UserDTO.fromMap(userMap)).map(id -> {
-      userMap.put("version", 0);
-      return TestUtils.doPut(webTestClient, "/user/" + System.currentTimeMillis(), userMap,
-          TestUtils.getAccessToken(tokenProvider));
-    }).block();
+    userService.create(UserDTO.fromMap(userMap)).block();
+    userMap.put("version", 0);
+    ResponseSpec response = TestUtils.doPut(webTestClient, "/user/" + System.currentTimeMillis(), userMap,
+        TestUtils.getAccessToken(tokenProvider));
     TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E102", "User not found!");
   }
 
@@ -174,10 +172,10 @@ public class UserHandlerTests {
   public void testUserUpdateVersionNotMatchedError() {
     Map<String, Object> userMap = generateUserMap();
 
-    ResponseSpec response = userService.create(UserDTO.fromMap(userMap)).map(id -> {
-      userMap.put("version", -1);
-      return TestUtils.doPut(webTestClient, "/user/" + id, userMap, TestUtils.getAccessToken(tokenProvider));
-    }).block();
+    String userId = userService.create(UserDTO.fromMap(userMap)).block();
+    userMap.put("version", -1);
+    ResponseSpec response = TestUtils.doPut(webTestClient, "/user/" + userId, userMap,
+        TestUtils.getAccessToken(tokenProvider));
     TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E103", "User version not matched!");
   }
 
@@ -186,25 +184,26 @@ public class UserHandlerTests {
   public void testUserDeleteSuccess() {
     Map<String, Object> userMap = generateUserMap();
 
-    ResponseSpec response = userService.create(UserDTO.fromMap(userMap))
-        .map(id -> TestUtils.doDelete(webTestClient, "/user/" + id + "/0", TestUtils.getAccessToken(tokenProvider)))
-        .block();
+    String userId = userService.create(UserDTO.fromMap(userMap)).block();
+    ResponseSpec response = TestUtils.doDelete(webTestClient, "/user/" + userId + "/0",
+        TestUtils.getAccessToken(tokenProvider));
     response.expectStatus().isEqualTo(HttpStatus.OK);
 
     Map<String, Object> responseBody = response.expectBody(Map.class).returnResult().getResponseBody();
     Assertions.assertNotNull(responseBody.get("id"));
 
-    String userId = (String) responseBody.get("id");
-    Optional<UserVO> userVO = userRepository.findById(userId);
-    Assertions.assertTrue(userVO.isEmpty());
+    String userId2 = (String) responseBody.get("id");
+    UserVO userVO = userRepository.findById(userId2).block();
+    Assertions.assertNull(userVO);
   }
 
   @Test
   public void testUserDeleteUserNotFoundError() {
     Map<String, Object> userMap = generateUserMap();
 
-    ResponseSpec response = userService.create(UserDTO.fromMap(userMap)).map(id -> TestUtils.doDelete(webTestClient,
-        "/user/" + System.currentTimeMillis() + "/0", TestUtils.getAccessToken(tokenProvider))).block();
+    userService.create(UserDTO.fromMap(userMap)).block();
+    ResponseSpec response = TestUtils.doDelete(webTestClient, "/user/" + System.currentTimeMillis() + "/0",
+        TestUtils.getAccessToken(tokenProvider));
     TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E102", "User not found!");
   }
 
@@ -212,9 +211,9 @@ public class UserHandlerTests {
   public void testUserDeleteVersionNotMatchedError() {
     Map<String, Object> userMap = generateUserMap();
 
-    ResponseSpec response = userService.create(UserDTO.fromMap(userMap))
-        .map(id -> TestUtils.doDelete(webTestClient, "/user/" + id + "/-1", TestUtils.getAccessToken(tokenProvider)))
-        .block();
+    String userId = userService.create(UserDTO.fromMap(userMap)).block();
+    ResponseSpec response = TestUtils.doDelete(webTestClient, "/user/" + userId + "/-1",
+        TestUtils.getAccessToken(tokenProvider));
     TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E103", "User version not matched!");
   }
 }

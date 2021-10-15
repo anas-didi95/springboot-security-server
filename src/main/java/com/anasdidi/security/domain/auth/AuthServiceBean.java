@@ -2,7 +2,6 @@ package com.anasdidi.security.domain.auth;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import com.anasdidi.security.common.ApplicationUtils;
 import com.anasdidi.security.config.TokenProvider;
@@ -66,20 +65,19 @@ final class AuthServiceBean implements AuthService {
 
   @Override
   public Mono<AuthDTO> check(AuthDTO dto) {
-    return Mono.defer(() -> {
-      Optional<UserVO> result = userRepository.findById(dto.principal);
+    if (logger.isDebugEnabled()) {
+      logger.debug("[check]{} userId={}", dto.traceId, dto.principal);
+    }
 
+    return userRepository.findById(dto.principal).switchIfEmpty(Mono.defer(() -> {
+      logger.error("[check]{} userId={}", dto.traceId, dto.principal);
+      return Mono.error(authException.throwUserNotFound(dto));
+    })).flatMap(vo -> {
       if (logger.isDebugEnabled()) {
-        logger.debug("[check]{} userId={}, result.isPresent={}", dto.traceId, dto.principal, result.isPresent());
+        logger.debug("[check]{} userId={}", dto.traceId, dto.principal);
       }
 
-      if (result.isPresent()) {
-        UserVO vo = result.get();
-        return Mono.just(AuthDTO.fromVO(vo, dto.traceId));
-      } else {
-        logger.error("[check]{} userId={}, result.isPresent={}", dto.traceId, dto.principal, result.isPresent());
-        return Mono.error(authException.throwUserNotFound(dto));
-      }
+      return Mono.just(AuthDTO.fromVO(vo, dto.traceId));
     });
   }
 }

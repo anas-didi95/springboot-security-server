@@ -1,7 +1,7 @@
 package com.anasdidi.security.common;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -64,7 +64,7 @@ public class TestUtils {
     String password = prefix + ":id";
     String fullName = prefix + ":id";
     String email = prefix + ":id";
-    Date lastModifiedDate = new Date();
+    LocalDateTime lastModifiedDate = LocalDateTime.now();
     int version = 0;
 
     return new UserVO(id, username, password, fullName, email, lastModifiedDate, version);
