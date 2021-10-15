@@ -47,13 +47,12 @@ public class AuthHandlerTests {
     String password = userVO.getPassword();
     userVO.setPassword(passwordEncoder.encode(password));
 
-    ResponseSpec response = userRepository.save(userVO).map(vo -> {
-      Map<String, Object> requestBody = new HashMap<>();
-      requestBody.put("username", vo.getUsername());
-      requestBody.put("password", password);
-      return requestBody;
-    }).map(requestBody -> webTestClient.post().uri("/auth/login").accept(MediaType.APPLICATION_JSON)
-        .contentType(MediaType.APPLICATION_JSON).bodyValue(requestBody).exchange()).block();
+    UserVO vo = userRepository.save(userVO).block();
+    Map<String, Object> requestBody = new HashMap<>();
+    requestBody.put("username", vo.getUsername());
+    requestBody.put("password", password);
+    ResponseSpec response = webTestClient.post().uri("/auth/login").accept(MediaType.APPLICATION_JSON)
+        .contentType(MediaType.APPLICATION_JSON).bodyValue(requestBody).exchange();
     response.expectStatus().isEqualTo(HttpStatus.OK);
     Map<String, Object> responseBody = response.expectBody(Map.class).returnResult().getResponseBody();
     Assertions.assertNotNull(responseBody.get("accessToken"));
@@ -94,13 +93,12 @@ public class AuthHandlerTests {
     String password = userVO.getPassword();
     userVO.setPassword(passwordEncoder.encode(password));
 
-    ResponseSpec response = userRepository.save(userVO).map(vo -> {
-      Map<String, Object> requestBody = new HashMap<>();
-      requestBody.put("username", vo.getUsername());
-      requestBody.put("password", "password" + System.currentTimeMillis());
-      return requestBody;
-    }).map(requestBody -> webTestClient.post().uri("/auth/login").accept(MediaType.APPLICATION_JSON)
-        .contentType(MediaType.APPLICATION_JSON).bodyValue(requestBody).exchange()).block();
+    UserVO vo = userRepository.save(userVO).block();
+    Map<String, Object> requestBody = new HashMap<>();
+    requestBody.put("username", vo.getUsername());
+    requestBody.put("password", "password" + System.currentTimeMillis());
+    ResponseSpec response = webTestClient.post().uri("/auth/login").accept(MediaType.APPLICATION_JSON)
+        .contentType(MediaType.APPLICATION_JSON).bodyValue(requestBody).exchange();
     TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E201", "Invalid credentials!",
         "Wrong username/password");
   }
@@ -111,8 +109,9 @@ public class AuthHandlerTests {
     UserVO userVO = TestUtils.generateUserVO();
     List<String> permissionList = Arrays.asList("PERMISSION:" + System.currentTimeMillis());
 
-    ResponseSpec response = userRepository.save(userVO).map(result -> result.getId()).map(userId -> TestUtils
-        .doGet(webTestClient, "/auth/check", TestUtils.getAccessToken(tokenProvider, userId, permissionList))).block();
+    UserVO vo = userRepository.save(userVO).block();
+    ResponseSpec response = TestUtils.doGet(webTestClient, "/auth/check",
+        TestUtils.getAccessToken(tokenProvider, vo.getId(), permissionList));
     response.expectStatus().isEqualTo(HttpStatus.OK);
 
     Map<String, Object> responseBody = response.expectBody(Map.class).returnResult().getResponseBody();

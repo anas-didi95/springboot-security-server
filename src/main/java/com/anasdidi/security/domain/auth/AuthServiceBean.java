@@ -1,7 +1,6 @@
 package com.anasdidi.security.domain.auth;
 
 import java.util.Arrays;
-import java.util.List;
 
 import com.anasdidi.security.common.ApplicationUtils;
 import com.anasdidi.security.config.TokenProvider;
@@ -36,9 +35,7 @@ final class AuthServiceBean implements AuthService {
 
   @Override
   public Mono<String> login(AuthDTO dto) {
-    return Mono.defer(() -> {
-      List<UserVO> resultList = userRepository.findByUsername(dto.username);
-
+    return userRepository.findByUsername(dto.username).collectList().flatMap(resultList -> {
       if (logger.isDebugEnabled()) {
         logger.debug("[login]{} dto.username={}, resultList.size={}", dto.traceId, dto.username,
             (resultList != null ? resultList.size() : -1));
