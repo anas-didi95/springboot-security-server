@@ -1,6 +1,6 @@
 package com.anasdidi.security.domain.user;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Map;
 
 import com.anasdidi.security.common.BaseDTO;
@@ -13,11 +13,11 @@ final class UserDTO extends BaseDTO {
   final String password;
   final String fullName;
   final String email;
-  final LocalDateTime lastModifiedDate;
+  final Instant lastModifiedDate;
   final Integer version;
 
   private UserDTO(String traceId, String id, String username, String password, String fullName, String email,
-      LocalDateTime lastModifiedDate, Integer version) {
+      Instant lastModifiedDate, Integer version) {
     super(traceId);
     this.id = id;
     this.username = username;
@@ -35,7 +35,7 @@ final class UserDTO extends BaseDTO {
     String password = (String) map.get("password");
     String fullName = (String) map.get("fullName");
     String email = (String) map.get("email");
-    LocalDateTime lastModifiedDate = (LocalDateTime) map.get("lastModifiedDate");
+    Instant lastModifiedDate = (Instant) map.get("lastModifiedDate");
     Integer version = (Integer) map.get("version");
 
     return new UserDTO(traceId, id, username, password, fullName, email, lastModifiedDate, version);

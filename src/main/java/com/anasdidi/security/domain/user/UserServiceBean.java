@@ -1,7 +1,5 @@
 package com.anasdidi.security.domain.user;
 
-import java.time.LocalDateTime;
-
 import com.anasdidi.security.common.ApplicationUtils;
 import com.anasdidi.security.repository.UserRepository;
 import com.anasdidi.security.vo.UserVO;
@@ -34,8 +32,6 @@ final class UserServiceBean implements UserService {
     UserVO vo = dto.toVO();
     vo.setId(ApplicationUtils.getFormattedUUID());
     vo.setPassword(passwordEncoder.encode(dto.password));
-    vo.setLastModifiedDate(LocalDateTime.now());
-    vo.setVersion(0);
 
     if (logger.isDebugEnabled()) {
       logger.debug("[create]{} {}", dto.traceId, vo);
@@ -68,16 +64,14 @@ final class UserServiceBean implements UserService {
         return Mono.error(userException.throwVersionNotMatched(vo, dto));
       }
     }).map(dbVO -> {
-      reqVO.setId(dbVO.getId());
-      reqVO.setPassword(dbVO.getPassword());
-      reqVO.setLastModifiedDate(LocalDateTime.now());
-      reqVO.setVersion(dbVO.getVersion() + 1);
+      dbVO.setFullName(reqVO.getFullName());
+      dbVO.setEmail(reqVO.getEmail());
 
       if (logger.isDebugEnabled()) {
-        logger.debug("[update]{} {}", dto.traceId, reqVO);
+        logger.debug("[update]{} {}", dto.traceId, dbVO);
       }
 
-      return reqVO;
+      return dbVO;
     }).flatMap(userRepository::save).map(result -> result.getId());
   }
 

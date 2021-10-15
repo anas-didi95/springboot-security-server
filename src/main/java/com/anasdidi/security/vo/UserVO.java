@@ -1,23 +1,22 @@
 package com.anasdidi.security.vo;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.domain.Persistable;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Table("TBL_USER")
-@NoArgsConstructor
 @AllArgsConstructor
 @Data
 @ToString(exclude = { "password" })
-public class UserVO implements Persistable<String> {
+public class UserVO {
 
   @Id
   @Column("ID")
@@ -35,14 +34,11 @@ public class UserVO implements Persistable<String> {
   @Column("EMAIL")
   private String email;
 
+  @LastModifiedDate
   @Column("LAST_MODIFIED_DT")
-  private LocalDateTime lastModifiedDate;
+  private Instant lastModifiedDate;
 
+  @Version
   @Column("VERSION")
   private Integer version;
-
-  @Override
-  public boolean isNew() {
-    return version == 0;
-  }
 }
