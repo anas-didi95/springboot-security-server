@@ -79,6 +79,7 @@ To run your application:
 * [Error Handling in Spring Webflux](https://dzone.com/articles/error-handling-in-spring-webflux)
 * [Securing Spring WebFlux Reactive APIs with JWT Auth](https://www.devglan.com/spring-security/spring-security-webflux-jwt)
 * [Liquibase 3.6.x data types mapping table](https://dba-presents.com/index.php/liquibase/216-liquibase-3-6-x-data-types-mapping-table)
+* [Handle R2DBC in Spring Projects](https://medium.com/sipios/handle-r2dbc-in-spring-projects-fa96e65ca24d)
 
 ---
 
