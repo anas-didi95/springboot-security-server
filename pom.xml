@@ -88,14 +88,13 @@
         <version>4.2.0</version>
         <configuration>
           <changeLogFile>src/main/resources/db/changelog/db.changelog-master.xml</changeLogFile>
-          <url>jdbc:postgresql://postgres:5432/postgres</url>
-          <username>postgres</username>
-          <password>postgres</password>
+          <url>${env.DB_URL_JDBC}</url>
+          <username>${env.DB_USERNAME}</username>
+          <password>${env.DB_PASSWORD}</password>
           <promptOnNonLocalDatabase>false</promptOnNonLocalDatabase>
-          <rollbackCount>1</rollbackCount>
+          <rollbackTag>1.0.0</rollbackTag>
         </configuration>
       </plugin>
 		</plugins>
 	</build>
-
 </project>
