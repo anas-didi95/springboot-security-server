@@ -1,6 +1,6 @@
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
     http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
-	<changeSet id="1.0.0-0" author="author">
+	<changeSet id="1.0.0-0" author="anas">
 		<tagDatabase tag="1.0.0" />
 	</changeSet>
 	<changeSet id="1.0.0-1" author="anas">
@@ -13,6 +13,8 @@
 			<column name="LAST_MODIFIED_DT" type="TIMESTAMP" />
 			<column name="VERSION" type="INTEGER" />
 		</createTable>
+	</changeSet>
+	<changeSet id="1.0.0-2" author="anas">
 		<addPrimaryKey columnNames="ID" constraintName="PK_USER" tableName="TBL_USER" />
 		<addUniqueConstraint columnNames="USERNAME" constraintName="UQ_USER#USERNAME" tableName="TBL_USER" />
 		<addNotNullConstraint columnName="USERNAME" tableName="TBL_USER" />
