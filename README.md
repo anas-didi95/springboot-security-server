@@ -22,7 +22,7 @@ Back-end service which provides security-related resources such as user and JSON
 
 ## Technologies
 * Spring Boot
-* PostgreSQL JDBC Driver
+* PostgreSQL JDBC/R2DBC Driver
 * Liquibase
 
 ---
@@ -60,13 +60,23 @@ To run your application:
 ./mvnw clean spring-boot:run
 ```
 
+To run liquibase migration
+```
+./mvnw clean liquibase:update
+```
+
+To run liquibase rollback. The rollback is using rollback tag. Change the tag in `pom.xml` accordingly.
+```
+./mvnw clean liquibase:rollback
+```
+
 ---
 
 ## Features
 - [x] Can create, update, delete user resource.
+- [x] Add JWT authentication for resource handler.
 
 ### TODO
-- [ ] Add JWT authentication for resource handler.
 - [ ] Add GraphQL to query resource.
 - [ ] Add JWT refresh token to get new access token.
 
