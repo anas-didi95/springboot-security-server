@@ -36,6 +36,16 @@
       <artifactId>jjwt</artifactId>
       <version>${jjwt.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.graphql-java-kickstart</groupId>
+      <artifactId>graphql-spring-boot-starter</artifactId>
+      <version>12.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.graphql-java-kickstart</groupId>
+      <artifactId>graphiql-spring-boot-starter</artifactId>
+      <version>11.0.0</version>
+    </dependency>
 
 		<dependency>
 			<groupId>io.r2dbc</groupId>

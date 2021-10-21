@@ -24,7 +24,8 @@ public class SecurityConfig {
 
   @Autowired
   public SecurityConfig(AuthenticationManager authenticationManager,
-      SecurityContextRepository securityContextRepository, RequestTraceIdFilter requestTraceIdFilter) {
+      SecurityContextRepository securityContextRepository,
+      RequestTraceIdFilter requestTraceIdFilter) {
     this.authenticationManager = authenticationManager;
     this.securityContextRepository = securityContextRepository;
     this.requestTraceIdFilter = requestTraceIdFilter;
@@ -32,17 +33,19 @@ public class SecurityConfig {
 
   @Bean
   public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-    String[] patterns = new String[] { "/auth/login/**" };
+    String[] patterns = new String[] {"/auth/login/**"};
 
-    return http.cors().disable().exceptionHandling()
-        .authenticationEntryPoint((exchange, exception) -> Mono.fromRunnable(() -> {
-          exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-        })).accessDeniedHandler((exchange, exception) -> Mono.fromRunnable(() -> {
-          exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
-        })).and().csrf().disable().authenticationManager(authenticationManager)
-        .securityContextRepository(securityContextRepository).authorizeExchange().pathMatchers(patterns).permitAll()
-        .anyExchange().authenticated().and()
-        .addFilterBefore(requestTraceIdFilter, SecurityWebFiltersOrder.AUTHENTICATION).build();
+    return http.csrf().disable().cors().disable().authorizeExchange().anyExchange().permitAll()
+        .and().build();
+    // return http.cors().disable().exceptionHandling()
+    // .authenticationEntryPoint((exchange, exception) -> Mono.fromRunnable(() -> {
+    // exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+    // })).accessDeniedHandler((exchange, exception) -> Mono.fromRunnable(() -> {
+    // exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+    // })).and().csrf().disable().authenticationManager(authenticationManager)
+    // .securityContextRepository(securityContextRepository).authorizeExchange().pathMatchers(patterns).permitAll()
+    // .anyExchange().authenticated().and()
+    // .addFilterBefore(requestTraceIdFilter, SecurityWebFiltersOrder.AUTHENTICATION).build();
   }
 
   @Bean
