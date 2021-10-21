@@ -1,5 +1,8 @@
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
     http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+	<changeSet id="1.0.0-0" author="anas">
+		<tagDatabase tag="1.0.0" />
+	</changeSet>
 	<changeSet id="1.0.0-1" author="anas">
 		<createTable tableName="TBL_USER">
 			<column name="ID" type="VARCHAR(50)" />

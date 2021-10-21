@@ -16,12 +16,9 @@
 	<properties>
 		<java.version>11</java.version>
     <jjwt.version>0.9.1</jjwt.version>
+    <liquibase.version>4.2.0</liquibase.version>
 	</properties>
 	<dependencies>
-    <dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-r2dbc</artifactId>
@@ -39,10 +36,6 @@
       <artifactId>jjwt</artifactId>
       <version>${jjwt.version}</version>
     </dependency>
-		<dependency>
-			<groupId>org.liquibase</groupId>
-			<artifactId>liquibase-core</artifactId>
-		</dependency>
 
 		<dependency>
 			<groupId>io.r2dbc</groupId>
@@ -82,7 +75,19 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+      <plugin>
+        <groupId>org.liquibase</groupId>
+        <artifactId>liquibase-maven-plugin</artifactId>
+        <version>${liquibase.version}</version>
+        <configuration>
+          <changeLogFile>src/main/resources/db/changelog/db.changelog-master.xml</changeLogFile>
+          <url>jdbc:${env.DB_URL}</url>
+          <username>${env.DB_USERNAME}</username>
+          <password>${env.DB_PASSWORD}</password>
+          <promptOnNonLocalDatabase>false</promptOnNonLocalDatabase>
+          <rollbackTag>1.0.0</rollbackTag>
+        </configuration>
+      </plugin>
 		</plugins>
 	</build>
-
 </project>
