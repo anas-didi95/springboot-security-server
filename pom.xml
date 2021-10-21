@@ -81,7 +81,7 @@
         <version>${liquibase.version}</version>
         <configuration>
           <changeLogFile>src/main/resources/db/changelog/db.changelog-master.xml</changeLogFile>
-          <url>${env.DB_URL_JDBC}</url>
+          <url>jdbc:${env.DB_URL}</url>
           <username>${env.DB_USERNAME}</username>
           <password>${env.DB_PASSWORD}</password>
           <promptOnNonLocalDatabase>false</promptOnNonLocalDatabase>
