@@ -1,5 +1,13 @@
+type User {
+  id: String
+  username: String
+  fullName: String
+  email: String
+}
+
 type Query {
   hello: String
+  user(id: String): User
 }
 
 type Subscription {
