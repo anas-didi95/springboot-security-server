@@ -1,8 +1,8 @@
 package com.anasdidi.security.domain.graphql;
 
 import com.anasdidi.security.common.ApplicationUtils;
+import com.anasdidi.security.domain.graphql.mapper.UserMapper;
 import com.anasdidi.security.repository.UserRepository;
-import com.anasdidi.security.vo.UserVO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,14 +32,16 @@ class GraphqlQueryHandler implements GraphQLQueryResolver {
     return Mono.just("Hello world");
   }
 
-  Mono<UserVO> user(String id, DataFetchingEnvironment env) {
+  Mono<UserMapper> user(String id, DataFetchingEnvironment env) {
     String executionId = getExecutionId(env);
 
     if (logger.isDebugEnabled()) {
       logger.debug("[user:{}] id={}", executionId, id);
     }
 
-    return userRepository.findById(id);
+    return userRepository.findById(id)
+        .map(result -> UserMapper.builder().id(result.getId()).username(result.getUsername())
+            .email(result.getEmail()).fullName(result.getFullName()).build());
   }
 
   private String getExecutionId(DataFetchingEnvironment env) {
