@@ -3,6 +3,7 @@ package com.anasdidi.security.domain.graphql;
 import com.anasdidi.security.common.ApplicationUtils;
 import com.anasdidi.security.domain.graphql.mapper.UserMapper;
 import com.anasdidi.security.repository.UserRepository;
+import com.anasdidi.security.vo.UserVO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,19 +33,40 @@ class GraphqlQueryHandler implements GraphQLQueryResolver {
     return Mono.just("Hello world");
   }
 
-  Mono<UserMapper> user(String id, DataFetchingEnvironment env) {
+  Mono<UserMapper> user(String id, String username, DataFetchingEnvironment env) {
     String executionId = getExecutionId(env);
+    int searchBy = getSearchBy(id, username);
 
     if (logger.isDebugEnabled()) {
-      logger.debug("[user:{}] id={}", executionId, id);
+      logger.debug("[user:{}] id={}, username={}, searchBy={}", executionId, id, username,
+          searchBy);
     }
 
-    return userRepository.findById(id)
+    Mono<UserVO> responseBody = Mono.empty();
+    switch (searchBy) {
+      case 0:
+        responseBody = responseBody.switchIfEmpty(userRepository.findById(id));
+        break;
+      case 1:
+        responseBody = responseBody.switchIfEmpty(userRepository.findByUsername(username));
+        break;
+    }
+
+    return responseBody
         .map(result -> UserMapper.builder().id(result.getId()).username(result.getUsername())
             .email(result.getEmail()).fullName(result.getFullName()).build());
   }
 
   private String getExecutionId(DataFetchingEnvironment env) {
     return ApplicationUtils.getFormattedUUID(env.getExecutionId().toString());
+  }
+
+  private int getSearchBy(String... values) {
+    for (int i = 0; i < values.length; i++) {
+      if (!values[i].isBlank()) {
+        return i;
+      }
+    }
+    return -1;
   }
 }
