@@ -52,9 +52,9 @@ class GraphqlQueryHandler implements GraphQLQueryResolver {
         break;
     }
 
-    return responseBody
-        .map(result -> UserMapper.builder().id(result.getId()).username(result.getUsername())
-            .email(result.getEmail()).fullName(result.getFullName()).build());
+    return responseBody.map(result -> UserMapper.builder().id(result.getId())
+        .username(result.getUsername()).fullName(result.getFullName()).email(result.getEmail())
+        .lastModifiedDate(result.getLastModifiedDate()).version(result.getVersion()).build());
   }
 
   private String getExecutionId(DataFetchingEnvironment env) {
