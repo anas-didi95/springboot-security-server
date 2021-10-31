@@ -17,6 +17,8 @@
 		<java.version>11</java.version>
     <jjwt.version>0.9.1</jjwt.version>
     <liquibase.version>4.2.0</liquibase.version>
+    <graphql.version>12.0.0</graphql.version>
+    <graphiql.version>11.0.0</graphiql.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -39,12 +41,12 @@
     <dependency>
       <groupId>com.graphql-java-kickstart</groupId>
       <artifactId>graphql-spring-boot-starter</artifactId>
-      <version>12.0.0</version>
+      <version>${graphql.version}</version>
     </dependency>
     <dependency>
       <groupId>com.graphql-java-kickstart</groupId>
       <artifactId>graphiql-spring-boot-starter</artifactId>
-      <version>11.0.0</version>
+      <version>${graphiql.version}</version>
     </dependency>
 
 		<dependency>
@@ -57,6 +59,12 @@
 			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -72,12 +80,7 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<optional>true</optional>
-		</dependency>
-	</dependencies>
+  </dependencies>
 
 	<build>
 		<plugins>
