@@ -76,9 +76,9 @@ To run liquibase rollback. The rollback is using rollback tag. Change the tag in
 ## Features
 - [x] Can create, update, delete user resource.
 - [x] Add JWT authentication for resource handler.
+- [x] Add GraphQL to query resource.
 
 ### TODO
-- [ ] Add GraphQL to query resource.
 - [ ] Add JWT refresh token to get new access token.
 
 ---
