@@ -1,5 +1,7 @@
 package com.anasdidi.security.domain.graphql;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import com.anasdidi.security.common.ApplicationUtils;
 import com.anasdidi.security.domain.graphql.mapper.UserMapper;
 import com.anasdidi.security.repository.UserRepository;
@@ -23,16 +25,6 @@ class GraphqlQueryHandler implements GraphQLQueryResolver {
     this.userRepository = userRepository;
   }
 
-  Mono<String> hello(DataFetchingEnvironment env) {
-    String executionId = env.getExecutionId().toString();
-
-    if (logger.isDebugEnabled()) {
-      logger.debug("[user:{}] hello", executionId);
-    }
-
-    return Mono.just("Hello world");
-  }
-
   Mono<UserMapper> user(String id, String username, DataFetchingEnvironment env) {
     String executionId = getExecutionId(env);
     int searchBy = getSearchBy(id, username);
@@ -52,9 +44,17 @@ class GraphqlQueryHandler implements GraphQLQueryResolver {
         break;
     }
 
-    return responseBody.map(result -> UserMapper.builder().id(result.getId())
-        .username(result.getUsername()).fullName(result.getFullName()).email(result.getEmail())
-        .lastModifiedDate(result.getLastModifiedDate()).version(result.getVersion()).build());
+    return responseBody.map(UserMapper::fromVO);
+  }
+
+  Mono<List<UserMapper>> users(DataFetchingEnvironment env) {
+    String executionId = getExecutionId(env);
+
+    if (logger.isDebugEnabled()) {
+      logger.debug("[users:{}] ...", executionId);
+    }
+
+    return userRepository.findAll().map(UserMapper::fromVO).collect(Collectors.toList());
   }
 
   private String getExecutionId(DataFetchingEnvironment env) {

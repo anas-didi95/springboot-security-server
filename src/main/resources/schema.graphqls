@@ -8,8 +8,8 @@ type User {
 }
 
 type Query {
-  hello: String
   user(id: String = "", username: String = ""): User
+  users: [User]
 }
 
 type Subscription {
