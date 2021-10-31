@@ -19,7 +19,8 @@
     "pivotal.vscode-spring-boot",
     "GabrielBB.vscode-lombok",
     "chris-rimmer.liquibase-snippets",
-    "fabianlauer.vs-code-xml-format"
+    "fabianlauer.vs-code-xml-format",
+    "graphql.vscode-graphql"
   ],
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.

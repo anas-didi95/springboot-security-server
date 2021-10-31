@@ -1,13 +1,11 @@
 package com.anasdidi.security.vo;
 
 import java.time.Instant;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.ToString;
@@ -15,7 +13,7 @@ import lombok.ToString;
 @Table("TBL_USER")
 @AllArgsConstructor
 @Data
-@ToString(exclude = { "password" })
+@ToString(exclude = {"password"})
 public class UserVO {
 
   @Id

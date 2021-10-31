@@ -41,6 +41,7 @@ Following table is a **mandatory** environment variables used in this project.
 | JWT_ISSUER | String | JWT issuer |
 | JWT_ACCESS_TOKEN_VALIDITY_MINUTES | Number | Total time in minutes for JWT access token validity |
 | LOG_LEVEL | String | Log level |
+| GRAPHIQL_ENABLED | Boolean | Flag to enable GraphiQL. Keep note GraphiQL should be disabled in production mode! |
 
 ---
 
@@ -75,9 +76,9 @@ To run liquibase rollback. The rollback is using rollback tag. Change the tag in
 ## Features
 - [x] Can create, update, delete user resource.
 - [x] Add JWT authentication for resource handler.
+- [x] Add GraphQL to query resource.
 
 ### TODO
-- [ ] Add GraphQL to query resource.
 - [ ] Add JWT refresh token to get new access token.
 
 ---
@@ -90,6 +91,7 @@ To run liquibase rollback. The rollback is using rollback tag. Change the tag in
 * [Securing Spring WebFlux Reactive APIs with JWT Auth](https://www.devglan.com/spring-security/spring-security-webflux-jwt)
 * [Liquibase 3.6.x data types mapping table](https://dba-presents.com/index.php/liquibase/216-liquibase-3-6-x-data-types-mapping-table)
 * [Handle R2DBC in Spring Projects](https://medium.com/sipios/handle-r2dbc-in-spring-projects-fa96e65ca24d)
+* [GraphQL Java Kickstart Samples](https://github.com/graphql-java-kickstart/samples)
 
 ---
 
