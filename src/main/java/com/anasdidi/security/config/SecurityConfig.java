@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import com.anasdidi.security.filter.RequestTraceIdFilter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -20,27 +22,32 @@ import reactor.core.publisher.Mono;
 @EnableWebFluxSecurity
 public class SecurityConfig {
 
+  private final static Logger logger = LogManager.getLogger(SecurityConfig.class);
   private final AuthenticationManager authenticationManager;
   private final SecurityContextRepository securityContextRepository;
   private final RequestTraceIdFilter requestTraceIdFilter;
-  private final String GRAPHIQL_ENABLE;
+  private final String GRAPHIQL_ENABLED;
 
   @Autowired
   public SecurityConfig(AuthenticationManager authenticationManager,
       SecurityContextRepository securityContextRepository,
       RequestTraceIdFilter requestTraceIdFilter,
-      @Value("${graphiql.enabled}") String GRAPHIQL_ENABLE) {
+      @Value("${graphiql.enabled}") String GRAPHIQL_ENABLED) {
     this.authenticationManager = authenticationManager;
     this.securityContextRepository = securityContextRepository;
     this.requestTraceIdFilter = requestTraceIdFilter;
-    this.GRAPHIQL_ENABLE = GRAPHIQL_ENABLE;
+    this.GRAPHIQL_ENABLED = GRAPHIQL_ENABLED;
   }
 
   @Bean
   public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
     List<String> patterns = new ArrayList<>(Arrays.asList("/auth/login/**"));
 
-    if (Boolean.parseBoolean(GRAPHIQL_ENABLE)) {
+    if (Boolean.parseBoolean(GRAPHIQL_ENABLED)) {
+      logger.warn(
+          "[securityWebFilterChain] GraphiQL is enabled! Disabling security for all graphql-related routes.");
+      logger.warn(
+          "[securityWebFilterChain] Keep note GraphiQL should be disabled in production mode!");
       patterns.addAll(
           Arrays.asList("/graphiql**", "/vendor/graphiql/**", "/graphql**", "/subscriptions**"));
     }

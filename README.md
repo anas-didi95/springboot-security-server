@@ -41,6 +41,7 @@ Following table is a **mandatory** environment variables used in this project.
 | JWT_ISSUER | String | JWT issuer |
 | JWT_ACCESS_TOKEN_VALIDITY_MINUTES | Number | Total time in minutes for JWT access token validity |
 | LOG_LEVEL | String | Log level |
+| GRAPHIQL_ENABLED | Boolean | Flag to enable GraphiQL. Keep note GraphiQL should be disabled in production mode! |
 
 ---
 
