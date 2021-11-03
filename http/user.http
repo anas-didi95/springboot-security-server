@@ -1,6 +1,6 @@
 @baseUrl = http://{{$processEnv APP_HOST}}:{{$processEnv APP_PORT}}/security/user
 @userId = {{create.response.body.$.id}}
-@accessToken = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJVTklUVEVTVCIsInBtcyI6WyJBRE1JTiJdLCJpc3MiOiJodHRwczovL2FuYXNkaWRpLmRldiIsImV4cCI6MTYzNTkzMTk4NSwiaWF0IjoxNjM1OTMwMTg1fQ.17hCNOLFURGsdFfdfWhfzXF3u9pN9p6Gdj_7DQ8Tcvs
+@accessToken = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJVTklUVEVTVCIsInBtcyI6WyJBRE1JTiJdLCJpc3MiOiJodHRwczovL2FuYXNkaWRpLmRldiIsImV4cCI6MTYzNTk0OTgzMSwiaWF0IjoxNjM1OTQ4MDMxfQ.rGV0dd6yiCCwZY2dUFZQOdWbnv3czxe4RTw-LCZJKb4
 
 // @name create
 POST {{baseUrl}}

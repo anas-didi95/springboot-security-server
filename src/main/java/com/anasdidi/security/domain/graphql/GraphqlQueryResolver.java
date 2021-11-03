@@ -2,8 +2,8 @@ package com.anasdidi.security.domain.graphql;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import com.anasdidi.security.common.ApplicationUtils;
-import com.anasdidi.security.domain.graphql.mapper.UserMapper;
+import com.anasdidi.security.common.BaseResolver;
+import com.anasdidi.security.domain.graphql.type.UserMapper;
 import com.anasdidi.security.repository.UserRepository;
 import com.anasdidi.security.vo.UserVO;
 import org.apache.logging.log4j.LogManager;
@@ -15,13 +15,13 @@ import graphql.schema.DataFetchingEnvironment;
 import reactor.core.publisher.Mono;
 
 @Component
-class GraphqlQueryHandler implements GraphQLQueryResolver {
+class GraphqlQueryResolver extends BaseResolver implements GraphQLQueryResolver {
 
-  private static final Logger logger = LogManager.getLogger(GraphqlQueryHandler.class);
+  private static final Logger logger = LogManager.getLogger(GraphqlQueryResolver.class);
   private final UserRepository userRepository;
 
   @Autowired
-  GraphqlQueryHandler(UserRepository userRepository) {
+  GraphqlQueryResolver(UserRepository userRepository) {
     this.userRepository = userRepository;
   }
 
@@ -55,18 +55,5 @@ class GraphqlQueryHandler implements GraphQLQueryResolver {
     }
 
     return userRepository.findAll().map(UserMapper::fromVO).collect(Collectors.toList());
-  }
-
-  private String getExecutionId(DataFetchingEnvironment env) {
-    return ApplicationUtils.getFormattedUUID(env.getExecutionId().toString());
-  }
-
-  private int getSearchBy(String... values) {
-    for (int i = 0; i < values.length; i++) {
-      if (!values[i].isBlank()) {
-        return i;
-      }
-    }
-    return -1;
   }
 }
