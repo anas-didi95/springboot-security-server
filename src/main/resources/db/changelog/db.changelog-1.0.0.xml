@@ -11,6 +11,7 @@
 			<column name="FULL_NAME" type="VARCHAR(250)" />
 			<column name="EMAIL" type="VARCHAR(150)" />
 			<column name="LAST_MODIFIED_DT" type="TIMESTAMP" />
+			<column name="LAST_MODIFIED_BY" type="VARCHAR(50)" />
 			<column name="VERSION" type="INTEGER" />
 		</createTable>
 	</changeSet>
@@ -22,6 +23,7 @@
 		<addNotNullConstraint columnName="FULL_NAME" tableName="TBL_USER" />
 		<addNotNullConstraint columnName="EMAIL" tableName="TBL_USER" />
 		<addNotNullConstraint columnName="LAST_MODIFIED_DT" tableName="TBL_USER" />
+		<addNotNullConstraint columnName="LAST_MODIFIED_BY" tableName="TBL_USER" />
 		<addNotNullConstraint columnName="VERSION" tableName="TBL_USER" />
 	</changeSet>
 </databaseChangeLog>
