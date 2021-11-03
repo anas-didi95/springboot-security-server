@@ -30,8 +30,9 @@ public class UserHandlerTests {
   private final BCryptPasswordEncoder passwordEncoder;
 
   @Autowired
-  public UserHandlerTests(WebTestClient webTestClient, UserService userService, UserRepository userRepository,
-      TokenProvider tokenProvider, BCryptPasswordEncoder passwordEncoder) {
+  public UserHandlerTests(WebTestClient webTestClient, UserService userService,
+      UserRepository userRepository, TokenProvider tokenProvider,
+      BCryptPasswordEncoder passwordEncoder) {
     this.webTestClient = webTestClient;
     this.userService = userService;
     this.userRepository = userRepository;
@@ -51,11 +52,13 @@ public class UserHandlerTests {
 
   private void assertVO(Map<String, Object> expected, UserVO actual) {
     Assertions.assertEquals(expected.get("username"), actual.getUsername());
-    Assertions.assertTrue(passwordEncoder.matches((String) expected.get("password"), actual.getPassword()));
+    Assertions.assertTrue(
+        passwordEncoder.matches((String) expected.get("password"), actual.getPassword()));
     Assertions.assertEquals(expected.get("fullName"), actual.getFullName());
     Assertions.assertEquals(expected.get("email"), actual.getEmail());
     Assertions.assertNotNull(actual.getVersion());
     Assertions.assertNotNull(actual.getLastModifiedDate());
+    Assertions.assertNotNull(actual.getLastModifiedBy());
   }
 
   @SuppressWarnings("unchecked")
@@ -66,7 +69,8 @@ public class UserHandlerTests {
     ResponseSpec response = TestUtils.doPost(webTestClient, "/user", requestBody,
         TestUtils.getAccessToken(tokenProvider));
     response.expectStatus().isEqualTo(HttpStatus.CREATED);
-    Map<String, Object> responseBody = response.expectBody(Map.class).returnResult().getResponseBody();
+    Map<String, Object> responseBody =
+        response.expectBody(Map.class).returnResult().getResponseBody();
     Assertions.assertNotNull(responseBody.get("id"));
 
     String userId = (String) responseBody.get("id");
@@ -80,9 +84,10 @@ public class UserHandlerTests {
 
   @Test
   public void testUserCreateRequestBodyEmptyError() {
-    ResponseSpec response = TestUtils.doPost(webTestClient, "/user", null, TestUtils.getAccessToken(tokenProvider));
-    TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E001", "Request body is empty!",
-        "Required keys: username,password,fullName,email");
+    ResponseSpec response =
+        TestUtils.doPost(webTestClient, "/user", null, TestUtils.getAccessToken(tokenProvider));
+    TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E001",
+        "Request body is empty!", "Required keys: username,password,fullName,email");
   }
 
   @Test
@@ -102,7 +107,8 @@ public class UserHandlerTests {
     userService.create(UserDTO.fromMap(requestBody)).block();
     ResponseSpec response = TestUtils.doPost(webTestClient, "/user", requestBody,
         TestUtils.getAccessToken(tokenProvider));
-    TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E101", "User creation failed!");
+    TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E101",
+        "User creation failed!");
   }
 
   @SuppressWarnings("unchecked")
@@ -123,7 +129,8 @@ public class UserHandlerTests {
         TestUtils.getAccessToken(tokenProvider));
     response.expectStatus().isEqualTo(HttpStatus.OK);
 
-    Map<String, Object> responseBody = response.expectBody(Map.class).returnResult().getResponseBody();
+    Map<String, Object> responseBody =
+        response.expectBody(Map.class).returnResult().getResponseBody();
     Assertions.assertNotNull(responseBody.get("id"));
 
     String userId2 = (String) responseBody.get("id");
@@ -142,8 +149,8 @@ public class UserHandlerTests {
     String userId = userService.create(UserDTO.fromMap(userMap)).block();
     ResponseSpec response = TestUtils.doPut(webTestClient, "/user/" + userId, null,
         TestUtils.getAccessToken(tokenProvider));
-    TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E001", "Request body is empty!",
-        "Required keys: fullName,email");
+    TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E001",
+        "Request body is empty!", "Required keys: fullName,email");
   }
 
   @Test
@@ -163,8 +170,8 @@ public class UserHandlerTests {
 
     userService.create(UserDTO.fromMap(userMap)).block();
     userMap.put("version", 0);
-    ResponseSpec response = TestUtils.doPut(webTestClient, "/user/" + System.currentTimeMillis(), userMap,
-        TestUtils.getAccessToken(tokenProvider));
+    ResponseSpec response = TestUtils.doPut(webTestClient, "/user/" + System.currentTimeMillis(),
+        userMap, TestUtils.getAccessToken(tokenProvider));
     TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E102", "User not found!");
   }
 
@@ -176,7 +183,8 @@ public class UserHandlerTests {
     userMap.put("version", -1);
     ResponseSpec response = TestUtils.doPut(webTestClient, "/user/" + userId, userMap,
         TestUtils.getAccessToken(tokenProvider));
-    TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E103", "User version not matched!");
+    TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E103",
+        "User version not matched!");
   }
 
   @SuppressWarnings("unchecked")
@@ -189,7 +197,8 @@ public class UserHandlerTests {
         TestUtils.getAccessToken(tokenProvider));
     response.expectStatus().isEqualTo(HttpStatus.OK);
 
-    Map<String, Object> responseBody = response.expectBody(Map.class).returnResult().getResponseBody();
+    Map<String, Object> responseBody =
+        response.expectBody(Map.class).returnResult().getResponseBody();
     Assertions.assertNotNull(responseBody.get("id"));
 
     String userId2 = (String) responseBody.get("id");
@@ -202,8 +211,8 @@ public class UserHandlerTests {
     Map<String, Object> userMap = generateUserMap();
 
     userService.create(UserDTO.fromMap(userMap)).block();
-    ResponseSpec response = TestUtils.doDelete(webTestClient, "/user/" + System.currentTimeMillis() + "/0",
-        TestUtils.getAccessToken(tokenProvider));
+    ResponseSpec response = TestUtils.doDelete(webTestClient,
+        "/user/" + System.currentTimeMillis() + "/0", TestUtils.getAccessToken(tokenProvider));
     TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E102", "User not found!");
   }
 
@@ -214,6 +223,7 @@ public class UserHandlerTests {
     String userId = userService.create(UserDTO.fromMap(userMap)).block();
     ResponseSpec response = TestUtils.doDelete(webTestClient, "/user/" + userId + "/-1",
         TestUtils.getAccessToken(tokenProvider));
-    TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E103", "User version not matched!");
+    TestUtils.assertResponseError(response, HttpStatus.BAD_REQUEST, "E103",
+        "User version not matched!");
   }
 }

@@ -23,7 +23,6 @@
 		<addNotNullConstraint columnName="FULL_NAME" tableName="TBL_USER" />
 		<addNotNullConstraint columnName="EMAIL" tableName="TBL_USER" />
 		<addNotNullConstraint columnName="LAST_MODIFIED_DT" tableName="TBL_USER" />
-		<addNotNullConstraint columnName="LAST_MODIFIED_BY" tableName="TBL_USER" />
 		<addNotNullConstraint columnName="VERSION" tableName="TBL_USER" />
 	</changeSet>
 </databaseChangeLog>

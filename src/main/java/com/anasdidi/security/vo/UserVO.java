@@ -2,6 +2,7 @@ package com.anasdidi.security.vo;
 
 import java.time.Instant;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.relational.core.mapping.Column;
@@ -35,6 +36,10 @@ public class UserVO {
   @LastModifiedDate
   @Column("LAST_MODIFIED_DT")
   private Instant lastModifiedDate;
+
+  @LastModifiedBy
+  @Column("LAST_MODIFIED_BY")
+  private String lastModifiedBy;
 
   @Version
   @Column("VERSION")
