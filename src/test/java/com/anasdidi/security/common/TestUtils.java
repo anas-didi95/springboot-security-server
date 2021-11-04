@@ -18,17 +18,18 @@ import org.springframework.test.web.reactive.server.WebTestClient.ResponseSpec;
 
 public class TestUtils {
 
-  public static void assertResponseError(ResponseSpec response, HttpStatus expectedStatus, String expectedCode,
-      String expectedMessage) {
+  public static void assertResponseError(ResponseSpec response, HttpStatus expectedStatus,
+      String expectedCode, String expectedMessage) {
     assertResponseError(response, expectedStatus, expectedCode, expectedMessage, null);
   }
 
   @SuppressWarnings("unchecked")
-  public static void assertResponseError(ResponseSpec response, HttpStatus expectedStatus, String expectedCode,
-      String expectedMessage, String expectedError) {
+  public static void assertResponseError(ResponseSpec response, HttpStatus expectedStatus,
+      String expectedCode, String expectedMessage, String expectedError) {
     response.expectStatus().isEqualTo(HttpStatus.BAD_REQUEST);
 
-    Map<String, Object> responseBody = response.expectBody(Map.class).returnResult().getResponseBody();
+    Map<String, Object> responseBody =
+        response.expectBody(Map.class).returnResult().getResponseBody();
     Assertions.assertEquals(expectedCode, responseBody.get("code"));
     Assertions.assertEquals(expectedMessage, responseBody.get("message"));
     Assertions.assertNotNull(responseBody.get("traceId"));
@@ -53,7 +54,8 @@ public class TestUtils {
     return getAccessToken(tokenProvider, "UNITTEST", Arrays.asList("ADMIN"));
   }
 
-  public static String getAccessToken(TokenProvider tokenProvider, String userId, List<String> permissionList) {
+  public static String getAccessToken(TokenProvider tokenProvider, String userId,
+      List<String> permissionList) {
     return tokenProvider.generateToken(userId, permissionList, null);
   }
 
@@ -65,36 +67,44 @@ public class TestUtils {
     String fullName = prefix + ":id";
     String email = prefix + ":id";
     Instant lastModifiedDate = null;
+    String lastModifiedBy = null;
     Integer version = null;
 
-    return new UserVO(id, username, password, fullName, email, lastModifiedDate, version);
+    return new UserVO(id, username, password, fullName, email, lastModifiedDate, lastModifiedBy,
+        version);
   }
 
-  public static final ResponseSpec doPost(WebTestClient webTestClient, String uri, Map<String, Object> requestBody) {
+  public static final ResponseSpec doPost(WebTestClient webTestClient, String uri,
+      Map<String, Object> requestBody) {
     return doPost(webTestClient, uri, requestBody, null);
   }
 
-  public static final ResponseSpec doPost(WebTestClient webTestClient, String uri, Map<String, Object> requestBody,
-      String accessToken) {
+  public static final ResponseSpec doPost(WebTestClient webTestClient, String uri,
+      Map<String, Object> requestBody, String accessToken) {
     RequestBodySpec request = webTestClient.post().uri(uri).accept(MediaType.APPLICATION_JSON)
         .contentType(MediaType.APPLICATION_JSON);
-    request = accessToken != null ? request.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken) : request;
+    request =
+        accessToken != null ? request.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+            : request;
     return requestBody != null ? request.bodyValue(requestBody).exchange() : request.exchange();
   }
 
-  public static final ResponseSpec doPut(WebTestClient webTestClient, String uri, Map<String, Object> requestBody,
-      String accessToken) {
+  public static final ResponseSpec doPut(WebTestClient webTestClient, String uri,
+      Map<String, Object> requestBody, String accessToken) {
     RequestBodySpec request = webTestClient.put().uri(uri).accept(MediaType.APPLICATION_JSON)
-        .contentType(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+        .contentType(MediaType.APPLICATION_JSON)
+        .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
     return requestBody != null ? request.bodyValue(requestBody).exchange() : request.exchange();
   }
 
-  public static final ResponseSpec doDelete(WebTestClient webTestClient, String uri, String accessToken) {
+  public static final ResponseSpec doDelete(WebTestClient webTestClient, String uri,
+      String accessToken) {
     return webTestClient.delete().uri(uri).accept(MediaType.APPLICATION_JSON)
         .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken).exchange();
   }
 
-  public static final ResponseSpec doGet(WebTestClient webTestClient, String uri, String accessToken) {
+  public static final ResponseSpec doGet(WebTestClient webTestClient, String uri,
+      String accessToken) {
     return webTestClient.get().uri(uri).accept(MediaType.APPLICATION_JSON)
         .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken).exchange();
   }

@@ -1,15 +1,14 @@
-package com.anasdidi.security.domain.graphql.mapper;
+package com.anasdidi.security.domain.graphql.type;
 
-import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.Date;
 import com.anasdidi.security.vo.UserVO;
-import graphql.schema.DataFetchingEnvironment;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.ToString;
 
 @AllArgsConstructor
 @Getter
+@ToString
 public class UserMapper {
 
   private String id;
@@ -17,19 +16,8 @@ public class UserMapper {
   private String fullName;
   private String email;
   private Instant lastModifiedDate;
+  private String lastModifiedBy;
   private Integer version;
-
-  public String getLastModifiedDate(String format, DataFetchingEnvironment env) {
-    if (format != null) {
-      if (lastModifiedDate == null) {
-        return null;
-      }
-
-      Date date = Date.from(lastModifiedDate);
-      return new SimpleDateFormat(format).format(date);
-    }
-    return lastModifiedDate.toString();
-  }
 
   public static UserMapper fromVO(UserVO vo) {
     String id = vo.getId();
@@ -37,7 +25,8 @@ public class UserMapper {
     String fullName = vo.getFullName();
     String email = vo.getEmail();
     Instant lastModifiedDate = vo.getLastModifiedDate();
+    String lastModifiedBy = vo.getLastModifiedBy();
     Integer version = vo.getVersion();
-    return new UserMapper(id, username, fullName, email, lastModifiedDate, version);
+    return new UserMapper(id, username, fullName, email, lastModifiedDate, lastModifiedBy, version);
   }
 }

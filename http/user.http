@@ -1,6 +1,6 @@
 @baseUrl = http://{{$processEnv APP_HOST}}:{{$processEnv APP_PORT}}/security/user
 @userId = {{create.response.body.$.id}}
-@accessToken = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJVTklUVEVTVCIsInBtcyI6WyJBRE1JTiJdLCJpc3MiOiJodHRwczovL2FuYXNkaWRpLmRldiIsImV4cCI6MTYzMzY4ODQxNiwiaWF0IjoxNjMzNjg2NjE2fQ.NmUK2d5OGbaxwE0wZF7p4iLPa80v14y4ZzEU5dvReHw
+@accessToken = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJVTklUVEVTVCIsInBtcyI6WyJBRE1JTiJdLCJpc3MiOiJodHRwczovL2FuYXNkaWRpLmRldiIsImV4cCI6MTYzNTk0OTgzMSwiaWF0IjoxNjM1OTQ4MDMxfQ.rGV0dd6yiCCwZY2dUFZQOdWbnv3czxe4RTw-LCZJKb4
 
 // @name create
 POST {{baseUrl}}
@@ -21,6 +21,7 @@ Authorization: Bearer {{accessToken}}
 PUT {{baseUrl}}/{{userId}}
 Accept: application/json
 Content-Type: application/json
+Authorization: Bearer {{accessToken}}
 
 {
    "fullName": "fullName2",
@@ -32,3 +33,4 @@ Content-Type: application/json
 
 // @name delete
 DELETE {{baseUrl}}/{{userId}}/1
+Authorization: Bearer {{accessToken}}

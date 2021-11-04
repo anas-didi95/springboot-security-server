@@ -4,6 +4,7 @@ type User {
   fullName: String
   email: String
   lastModifiedDate(format: String): String
+  lastModifiedBy: User
   version: Int
 }
 

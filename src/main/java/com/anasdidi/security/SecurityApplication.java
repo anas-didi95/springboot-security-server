@@ -29,9 +29,10 @@ public class SecurityApplication {
           String fullName = "Super Admin";
           String email = "superadmin@email.com";
           Instant lastModifiedDate = Instant.now();
+          String lastModifiedBy = "SYSTEM";
           Integer version = null;
-          UserVO vo =
-              new UserVO(id, username, password, fullName, email, lastModifiedDate, version);
+          UserVO vo = new UserVO(id, username, password, fullName, email, lastModifiedDate,
+              lastModifiedBy, version);
           return userRepository.save(vo);
         } else {
           return Mono.empty();
